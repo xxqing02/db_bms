@@ -4,14 +4,16 @@ from django.http import HttpResponseRedirect
 from app import models
 import hashlib
 
+# 可以用session来处理数据传递问题
 search_ISBN = ""
-# 可以用session来处理ISBN传递问题
-
+states = ["未借出", "已借出", "不外借", "已预约"]
 
 def password_encryption(password):
     hashed_password = hashlib.sha256(password).hexdigest()
     return hashed_password
 
+def index(request):
+    return render(request, "index.html")
 
 # 做读者和管理员界面的区分
 def login(request):
@@ -53,7 +55,9 @@ def reader_page(request):
 
 def book_list(request):
     book = models.book.objects.all()
-    return render(request, "book_list.html", {"book_list": book})
+    book_info = models.book_info.objects.all()
+    list = {"book": book,"book_info": book_info}
+    return render(request, "book_list.html", list)
 
 
 def book_process(request):
@@ -97,8 +101,10 @@ def add_book(request):
         return redirect("/book_info_add/")
     return render(request, "book_add.html")
 
+
 def book_info_add(request):
     global search_ISBN
+    global states
     print(search_ISBN)
     if request.method == "POST" and request.POST:
         librarian_id = request.COOKIES.get("user_id")
@@ -107,9 +113,9 @@ def book_info_add(request):
         ISBN = models.book.objects.get(isbn=search_ISBN)
         position = request.POST.get("position")
         if position == "图书阅览室":
-            s = "不外借"
+            s = states[2]
         if position == "图书流通室":
-            s = "未借出"
+            s = states[0]
         operator = request.POST.get("operator")
         models.book_info.objects.create(
             book_id=book_id,
@@ -122,11 +128,13 @@ def book_info_add(request):
 
     return render(request, "book_info_add.html")
 
+
 def del_book(request):
     drop_id = request.GET.get("id")
     drop_object = models.book.objects.get(id=drop_id)
     drop_object.delete()
     return redirect("/book_list/")
+
 
 def edit_book(request):
     edit_id = request.GET.get("id")
@@ -143,3 +151,10 @@ def edit_book(request):
         return redirect("/book_list/")
 
     return render(request, "book_edit.html", {"book": edit_object})
+
+def borrow_book(request):
+
+    return render(request, "borrow_book.html")
+
+def return_book(request):
+    return render(request, "return_book.html")

@@ -29,11 +29,20 @@
             }      
         </script>
 
-        <!-- <h2>Book list
-            button to search book
-            <a href="/book_put_in" class="btn btn-primary btn-right">搜索书目</a>
-        </h2> -->
 
+        <!-- 功能列表\借书\还书 -->
+        <div class="btn-group">
+            <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                功能列表
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="/borrow_book/">借书</a></li>
+                <li><a class="dropdown-item" href="/return_book/">还书</a></li>
+                <li><a class="dropdown-item" href="/reader_page/modify/">修改密码</a></li>
+                <li><a class="dropdown-item" href="/login/">退出登录</a></li>
+            </ul>
+        </div>
     </div>
 
 </body>
