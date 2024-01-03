@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.2/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body>
+
+    <div class="container mt-3">
+        <h2>编辑书目属性</h2>
+        <p>请在下面的输入框内输入需要修改的属性</p>
+        <div>
+            <form action="/book_edit/?id={{ book.id }}" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="edit_id" value="{{book.id}}" class="hide">
+
+                {% csrf_token %}
+                <div class="input-group mb-3">
+                    <span class="input-group-text">书名</span>
+                    <input type="text" class="form-control" placeholder="书名" name="name" value="{{ book.name }}">
+                </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text">作者</span>
+                    <input type="text" class="form-control" placeholder="作者" name="author" value="{{ book.author }}">
+                </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text">出版商</span>
+                    <input type="text" class="form-control" placeholder="出版商" name="publisher"
+                        value="{{ book.publisher }}">
+                </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text">ISBN</span>
+                    <input type="text" class="form-control" placeholder="ISBN" name="ISBN" value="{{ book.ISBN }}">
+
+                </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text">出版年月</span>
+                    <input type="text" class="form-control" placeholder="出版年月" name="date" value="{{ book.date }}">
+                </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text">数量</span>
+                    <input type="text" class="form-control" placeholder="数量" name="num" value="{{ book.num }}">
+                </div>
+
+                <div class="input-group mb-3">
+                    <span class="input-group-text">经办人</span>
+                    <input type="text" class="form-control" placeholder="经办人" name="operator"
+                        value="{{ book.operator }}">
+                </div>
+
+                <button type="submit" class="btn btn-primary">完成修改</button>
+                <button type="submit" formmethod="get" formaction="/book_list" class="btn btn-default">返回</button>
+            </form>
+        </div>
+
+</body>
+
+</html>
