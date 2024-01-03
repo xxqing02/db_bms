@@ -3,17 +3,21 @@ from django.shortcuts import redirect
 from django.http import HttpResponseRedirect
 from app import models
 import hashlib
+import time
 
 # 可以用session来处理数据传递问题
 search_ISBN = ""
 states = ["未借出", "已借出", "不外借", "已预约"]
 
+
 def password_encryption(password):
     hashed_password = hashlib.sha256(password).hexdigest()
     return hashed_password
 
+
 def index(request):
     return render(request, "index.html")
+
 
 # 做读者和管理员界面的区分
 def login(request):
@@ -56,7 +60,7 @@ def reader_page(request):
 def book_list(request):
     book = models.book.objects.all()
     book_info = models.book_info.objects.all()
-    list = {"book": book,"book_info": book_info}
+    list = {"book": book, "book_info": book_info}
     return render(request, "book_list.html", list)
 
 
@@ -152,9 +156,40 @@ def edit_book(request):
 
     return render(request, "book_edit.html", {"book": edit_object})
 
-def borrow_book(request):
 
-    return render(request, "borrow_book.html")
+def borrow_book(request):
+    books = []
+    global search_ISBN
+    if request.method == "POST" and request.POST:
+        ISBN = request.POST.get("ISBN")
+        saved_info = models.book.objects.filter(isbn=ISBN).first()
+        if not saved_info:
+            search_ISBN = ISBN
+            return redirect("/reserve_book/")
+        else:
+            books = models.book_info.objects.filter(isbn=ISBN).all()
+    if request.method == "GET" and request.GET:
+        book_id = request.GET.get("id")
+        book = models.book_info.objects.get(book_id=book_id)
+        """models.borrow.objects.create"""
+
+    return render(request, "borrow_book.html", {"books": books})
+
+
+def reserve_book(request):
+    global search_ISBN
+    # if request.method == "POST" and request.POST:
+    #     reader_id = request.COOKIES.get("user_id")
+    #     reader = models.reader.objects.get(id=reader_id)
+    #     time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    #     # isbn报错
+    #     models.reserve.objects.create(
+    #         reader_id=reader,
+    #         isbn=search_ISBN,
+    #         reseve_time=time
+    #     )
+    return render(request, "reserve_book.html")
+
 
 def return_book(request):
     return render(request, "return_book.html")

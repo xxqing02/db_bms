@@ -33,5 +33,6 @@ urlpatterns = [
     re_path(r"^book_edit/", views.edit_book, name="book_edit"),
     re_path(r"^book_del/", views.del_book, name="book_del"),
     re_path(r"^borrow_book/", views.borrow_book, name="borrow_book"),
+    re_path(r"^reserve_book/", views.reserve_book, name="reserve_book"),
     re_path(r"^return_book/", views.return_book, name="return_book"),
 ]

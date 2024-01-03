@@ -71,6 +71,7 @@ class borrow(models.Model):
 class reserve(models.Model):
     id = models.AutoField(primary_key=True, unique=True)
     reader_id = models.ForeignKey(reader, on_delete=models.CASCADE)
+    # 是否应该修改?如果使用外键,则要求需要预约的书籍必须存在,否则会报错
     isbn = models.ForeignKey(book, to_field="isbn", on_delete=models.CASCADE)
     reserve_time = models.DateTimeField(default="2000-01-01 00:00:00")
 
