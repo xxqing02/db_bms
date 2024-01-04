@@ -15,8 +15,8 @@ def password_encryption(password):
     return hashed_password
 
 
-def index(request):
-    return render(request, "index.html")
+def help(request):
+    return render(request, "help.html")
 
 
 # 做读者和管理员界面的区分
@@ -44,11 +44,6 @@ def login(request):
     return render(request, "login.html")
 
 
-# 未写
-def register(request):
-    return render(request, "login.html")
-
-
 def librarian_page(request):
     return render(request, "librarian_page.html")
 
@@ -62,10 +57,6 @@ def book_list(request):
     book_info = models.book_info.objects.all()
     list = {"book": book, "book_info": book_info}
     return render(request, "book_list.html", list)
-
-
-def book_process(request):
-    return render(request, "book_process.html")
 
 
 # 书籍入库
@@ -83,7 +74,6 @@ def put_in(request):
     return render(request, "book_put_in.html")
 
 
-# ISBN不存在,先添加书目信息
 def add_book(request):
     global search_ISBN
     if request.method == "POST" and request.POST:
@@ -99,7 +89,7 @@ def add_book(request):
             publisher=publisher,
             isbn=search_ISBN,
             date=date,
-            number=1,
+            number=0,
             operator=librarian,
         )
         return redirect("/book_info_add/")
@@ -114,7 +104,7 @@ def book_info_add(request):
         librarian_id = request.COOKIES.get("user_id")
         librarian = models.librarian.objects.get(id=librarian_id)
         book_id = request.POST.get("book_id")
-        ISBN = models.book.objects.get(isbn=search_ISBN)
+        isbn = models.book.objects.get(isbn=search_ISBN)
         position = request.POST.get("position")
         if position == "图书阅览室":
             s = states[2]
@@ -123,13 +113,14 @@ def book_info_add(request):
         operator = request.POST.get("operator")
         models.book_info.objects.create(
             book_id=book_id,
-            isbn=ISBN,
+            isbn=isbn,
             position=position,
             state=s,
             operator=librarian,
         )
+        isbn.number += 1
+        isbn.save()
         return redirect("/book_list/")
-
     return render(request, "book_info_add.html")
 
 
@@ -166,6 +157,7 @@ def borrow_book(request):
     if request.method == "POST" and request.POST:
         ISBN = request.POST.get("ISBN")
         saved_info = models.book.objects.filter(isbn=ISBN).first()
+        # !!!!!!!!!
         if not saved_info:
             search_ISBN = ISBN
             return redirect("/reserve_book/")
@@ -192,6 +184,30 @@ def borrow_book(request):
     return render(request, "borrow_book.html")
 
 
+def book_process(request):
+    borrow = models.borrow.objects.all()
+    return render(request, "book_process.html", {"borrow_list": borrow})
+
+
+def approve_borrow(request):
+    id = request.GET.get("id")
+    record = models.borrow.objects.filter(id=id).first()
+    record.is_check = True
+    record.save()
+    book_info = models.book_info.objects.filter(book_id=record.book_id_id).first()
+    book_info.state = states[1]
+    book_info.save()
+    return redirect("/book_process/")
+
+
+def refuse_borrow(request):
+    id = request.GET.get("id")
+    record = models.borrow.objects.get(id=id)
+    record.delete()
+    return redirect("/book_process/")
+
+
+#############未实现###############
 def reserve_book(request):
     global search_ISBN
     if request.method == "POST" and request.POST:

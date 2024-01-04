@@ -20,9 +20,8 @@ from django.urls import re_path
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    re_path(r"^$", views.index, name="index"),
     re_path(r"^login/", views.login, name="login"),
-    re_path(r"^register/", views.register, name="register"),
+    re_path(r"^help/", views.help, name="help"),
     re_path(r"^reader_page/", views.reader_page, name="reader_page"),
     re_path(r"^librarian_page/", views.librarian_page, name="librarian_page"),
     re_path(r"^book_put_in/", views.put_in, name="book_put_in"),
@@ -35,4 +34,6 @@ urlpatterns = [
     re_path(r"^borrow_book/", views.borrow_book, name="borrow_book"),
     re_path(r"^reserve_book/", views.reserve_book, name="reserve_book"),
     re_path(r"^return_book/", views.return_book, name="return_book"),
+    re_path(r"^refuse_borrow/", views.refuse_borrow, name="refuse_borrow"),
+    re_path(r"^approve_borrow/", views.approve_borrow, name="approve_borrow"),
 ]
