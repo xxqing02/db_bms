@@ -89,7 +89,7 @@ def add_book(request):
             publisher=publisher,
             isbn=search_ISBN,
             date=date,
-            number=1,
+            number=0,
             operator=librarian,
         )
         return redirect("/book_info_add/")
@@ -104,7 +104,7 @@ def book_info_add(request):
         librarian_id = request.COOKIES.get("user_id")
         librarian = models.librarian.objects.get(id=librarian_id)
         book_id = request.POST.get("book_id")
-        ISBN = models.book.objects.get(isbn=search_ISBN)
+        isbn = models.book.objects.get(isbn=search_ISBN)
         position = request.POST.get("position")
         if position == "图书阅览室":
             s = states[2]
@@ -113,11 +113,13 @@ def book_info_add(request):
         operator = request.POST.get("operator")
         models.book_info.objects.create(
             book_id=book_id,
-            isbn=ISBN,
+            isbn=isbn,
             position=position,
             state=s,
             operator=librarian,
         )
+        isbn.number += 1
+        isbn.save()
         return redirect("/book_list/")
     return render(request, "book_info_add.html")
 
@@ -155,10 +157,9 @@ def borrow_book(request):
     if request.method == "POST" and request.POST:
         ISBN = request.POST.get("ISBN")
         saved_info = models.book.objects.filter(isbn=ISBN).first()
-        #
+        # !!!!!!!!!
         if not saved_info:
             search_ISBN = ISBN
-
             return redirect("/reserve_book/")
         else:
             books = models.book_info.objects.filter(isbn=ISBN).all()
