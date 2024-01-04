@@ -10,8 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
+from ruamel.yaml import YAML
 from pathlib import Path
 import os
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -74,14 +76,21 @@ WSGI_APPLICATION = "bms.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+CONFIG_FILEPATH = "config.yaml"
+if not os.path.exists(CONFIG_FILEPATH):
+    raise Exception("Config file not exists!")
+
+config = YAML().load(open(CONFIG_FILEPATH))
+info = config['info']
+
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": 'bms',
-        "USER": 'root',
-        "HOST": '127.0.0.1',
-        "PORT": '3306',
-        "PASSWORD": '123456',
+        "NAME": info['database'],
+        "USER": info['user'],
+        "HOST": info['host'],
+        "PORT": info['port'],
+        "PASSWORD": info['password']
     }
 }
 
