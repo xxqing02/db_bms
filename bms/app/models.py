@@ -38,7 +38,7 @@ class book(models.Model):
 
 class book_info(models.Model):
     book_id = models.CharField(max_length=20, primary_key=True, unique=True)
-    isbn = models.ForeignKey(to="book",to_field="isbn", on_delete=models.CASCADE)
+    isbn = models.ForeignKey(to="book", to_field="isbn", on_delete=models.CASCADE)
     position = models.CharField(max_length=20)
     state = models.CharField(max_length=20)
     operator = models.ForeignKey(librarian, on_delete=models.CASCADE)
@@ -71,9 +71,10 @@ class borrow(models.Model):
 class reserve(models.Model):
     id = models.AutoField(primary_key=True, unique=True)
     reader_id = models.ForeignKey(reader, on_delete=models.CASCADE)
-    # 是否应该修改?如果使用外键,则要求需要预约的书籍必须存在,否则会报错
     isbn = models.ForeignKey(book, to_field="isbn", on_delete=models.CASCADE)
     reserve_time = models.DateTimeField(default="2000-01-01 00:00:00")
+    # 预约有效天数
+    reserve_days = models.IntegerField(default=10)
 
     def __str__(self):
         return self.id

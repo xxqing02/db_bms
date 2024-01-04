@@ -33,15 +33,22 @@
             <td>{{ book.position }}</td>
             <td>{{ book.state }}</td>
             <td>{{ book.operator_id }}</td>
+
             {% if book.state == "未借出" %}
-            <td> <button type="button" class="btn btn-primary active">借阅</button> </td>
+            <td>
+                <a href="/borrow_book/?id={{ book.book_id }}" class="btn btn-primary active" role="button">借阅</a>
+            </td>
             {% endif %}
         </tr>
-
         {% endfor %}
     </table>
     {% endif %}
 
+    {% if borrow_record %}
+    <div class="alert alert-success">
+        <strong>借阅成功!</strong>
+    </div>
+    {% endif %}
 </body>
 
 </html>

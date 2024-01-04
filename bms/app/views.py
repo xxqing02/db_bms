@@ -159,7 +159,10 @@ def edit_book(request):
 
 def borrow_book(request):
     books = []
+    list = []
     global search_ISBN
+    reader_id = request.COOKIES.get("user_id")
+    reader = models.reader.objects.filter(id=reader_id).first()
     if request.method == "POST" and request.POST:
         ISBN = request.POST.get("ISBN")
         saved_info = models.book.objects.filter(isbn=ISBN).first()
@@ -168,26 +171,40 @@ def borrow_book(request):
             return redirect("/reserve_book/")
         else:
             books = models.book_info.objects.filter(isbn=ISBN).all()
+            list = {"books": books}
+            return render(request, "borrow_book.html", list)
     if request.method == "GET" and request.GET:
         book_id = request.GET.get("id")
-        book = models.book_info.objects.get(book_id=book_id)
-        """models.borrow.objects.create"""
+        id = models.book_info.objects.filter(book_id=book_id).first()
+        if id:
+            print(id)
+        else:
+            print("error")
+        models.borrow.objects.create(
+            book_id=id,
+            reader_id=reader,
+            borrow_time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
+        )
+        borrow_record = models.borrow.objects.filter(book_id=book_id).first()
+        list = {"books": books, "borrow_record": borrow_record}
+        return render(request, "borrow_book.html", list)
 
-    return render(request, "borrow_book.html", {"books": books})
+    return render(request, "borrow_book.html")
 
 
 def reserve_book(request):
     global search_ISBN
-    # if request.method == "POST" and request.POST:
-    #     reader_id = request.COOKIES.get("user_id")
-    #     reader = models.reader.objects.get(id=reader_id)
-    #     time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-    #     # isbn报错
-    #     models.reserve.objects.create(
-    #         reader_id=reader,
-    #         isbn=search_ISBN,
-    #         reseve_time=time
-    #     )
+    if request.method == "POST" and request.POST:
+        reader_id = request.COOKIES.get("user_id")
+        reader = models.reader.objects.filter(id=reader_id).first()
+        book = models.book.objects.filter(isbn=search_ISBN).first()
+        day = request.POST.get("day")
+        models.reserve.objects.create(
+            reader_id=reader,
+            isbn=book,
+            reserve_time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
+            reserve_days=day,
+        )
     return render(request, "reserve_book.html")
 
 
