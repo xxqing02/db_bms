@@ -6,4 +6,4 @@
 5.在终端中输入python manage.py makemigrations app\
 6.在终端中输入python manage.py migrate app\
 7.在终端中输入python manage.py runserver 0.0.0.0:8000\
-8.在浏览器地址栏输入127.0.0.1/login\
+8.在浏览器地址栏输入127.0.0.1/login
