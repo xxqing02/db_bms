@@ -1,32 +1,53 @@
 import pymysql
+# from django.core.management import call_command
+# from django.db import connection
 
-conn = pymysql.connect(
-    host="localhost",
-    user="root",
-    password="123456",
-    charset="utf8",
-)
+import os
+from ruamel.yaml import YAML
 
-cursor = conn.cursor()
+CONFIG_FILEPATH = "./config.yaml"
 
-sql = "drop database bms"
-cursor.execute(sql)
+if __name__ == "__main__":
+    if not os.path.exists(CONFIG_FILEPATH):
+        raise Exception("Config file not exists!")
 
-sql = "create database if not exists bms default charset utf8"
-cursor.execute(sql)
+    config = YAML().load(open(CONFIG_FILEPATH))
+    info = config['info']
 
-sql = "show databases"
-cursor.execute(sql)
-result = cursor.fetchall()
-for i in result:
-    print(i)
+    conn = pymysql.connect(
+        host=info['host'],
+        port=info['port'],
+        user=info['user'],
+        password=info['password'],
+        charset="utf8",
+    )
 
-sql = "use bms"
-cursor.execute(sql)
+    cursor = conn.cursor()
 
-sql = "show tables"
-cursor.execute(sql)
+    # Drop database if exists
+    query = "drop database if exists bms"
+    cursor.execute(query)
 
-result = cursor.fetchall()
-for i in result:
-    print(i)
+    # Create database
+    query = "create database bms default charset utf8"
+    cursor.execute(query)
+
+    query = "show databases"
+    cursor.execute(query)
+    print("Databases:")
+    for row in cursor.fetchall():
+        print(row)
+
+    query = "use bms"
+    cursor.execute(query)
+
+    query = "show tables"
+    cursor.execute(query)
+    print("Tables in bms:")
+    for row in cursor.fetchall():
+        print(row)
+    
+    # Quit
+    cursor.close()
+    conn.close()
+    print("Database initialized!")
