@@ -1,6 +1,6 @@
 # 项目配置
 1.安装Django\
-2.创建数据库bms,可以查看initial.py\
+2.配置init.py,创建数据库bms\
 3.在bms/setting.py中配置DataBase\
 4.在终端中输入python manage.py migrate\
 5.在终端中输入python manage.py makemigrations app\
