@@ -1,0 +1,62 @@
+{% extends './layout.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+
+        <!-- left -->
+        <div class="col-md-6">
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <br>
+            <div container-fluid="text-center" class="text-center">
+                <h1>承瀚海之辽阔</h1>
+            </div>
+            <br>
+            <br>
+            <br>
+            <br>
+        </div>
+
+        <!-- right -->
+        <div class="col-md-5">
+            <div class="list-group">
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+
+                <form class="content-wrap" role="form" action={% url 'login' %} method="post">
+                    {% csrf_token %}
+                    <input class="form-control" name="email" type="text" placeholder="邮箱">
+                    <br>
+                    <input class="form-control" name="password" type="password" placeholder="密码">
+                    <br>
+                    <div class="action">
+                        <button type="submit" class="btn btn-primary btn-block">登录</button>
+                    </div>
+                </form>
+                <br>
+
+                <form class="content-wrap" role="form" method="get">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary btn-block"
+                        formaction={% url 'register' %}>注册
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-1">
+        </div>
+    </div>
+</div>
+{% endblock %}

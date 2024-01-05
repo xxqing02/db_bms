@@ -72,6 +72,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "bms.wsgi.application"
 
+DEFAULT_CHARSET = "utf-8"
 
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
@@ -81,16 +82,15 @@ if not os.path.exists(CONFIG_FILEPATH):
     raise Exception("Config file not exists!")
 
 config = YAML().load(open(CONFIG_FILEPATH))
-info = config['info']
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": info['database'],
-        "USER": info['user'],
-        "HOST": info['host'],
-        "PORT": info['port'],
-        "PASSWORD": info['password']
+        "NAME": 'bms',
+        "USER": config['database']['user'],
+        "HOST": config['database']['host'],
+        "PORT": config['database']['port'],
+        "PASSWORD": config['database']['password']
     }
 }
 
