@@ -5,10 +5,8 @@
 
 ## 项目构建
 1. 安装`requirements.txt`配置环境。
-2. `config_example.yaml`文件是数据库用户配置信息的示例文件，复制一份到同级目录并重命名为`config.yaml`，将`password`修改为自己的密码。
-3. 运行`init.py`，创建数据库bms
-4. 在终端中输入python bms/manage.py migrate
-5. 在终端中输入python bms/manage.py makemigrations app
-6. 在终端中输入python bms/manage.py migrate app
-7. 在终端中输入python bms/manage.py runserver x.x.x.x:port
-8. 在浏览器地址栏输入127.0.0.1/login
+2. `config_example.yaml`文件是配置信息的示例文件，复制一份到同级目录并重命名为`config.yaml`，
+将`database`中的`password`修改为自己数据库的密码，其他信息可根据需要自定义。
+3. 运行`init.py`，创建数据库bms并创建相关表格。
+4. 运行`run_server.py`，运行web服务器。
+5. 更新应用相关代码时，需要运行`update.py`。
