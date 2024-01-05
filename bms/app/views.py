@@ -5,6 +5,7 @@ from app import models
 import hashlib
 import time
 
+COMMON_PATH = "./common/"
 READER_PATH = "./reader/"
 LIBRARIAN_PATH = "./librarian/"
 
@@ -13,9 +14,8 @@ search_ISBN = ""
 states = ["未借出", "已借出", "不外借", "已预约"]
 
 
-def password_encryption(password) -> str:
-    hashed_password = hashlib.sha256(password).hexdigest()
-    return hashed_password
+def password_encryption(password: str) -> str:
+    return hashlib.sha256(password.encode("utf-8")).hexdigest()
 
 #####################################################
 # Common
@@ -27,26 +27,57 @@ def help(request):
 
 def login(request):
     if request.method == "POST" and request.POST:
-        account = request.POST.get("id")
-        pwd = request.POST.get("password")
-        # password = password_encryption(password)
-        user_found = models.librarian.objects.filter(id=account).first()
-        if user_found:
-            if pwd == user_found.password:
-                response = HttpResponseRedirect("/librarian_page/")
-                response.delete_cookie("username")
-                response.set_cookie("user_id", user_found.id)
-                return response
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        password_encrypted = password_encryption(password)
+        # password_encrypted = password
 
-        user_found = models.reader.objects.filter(id=account).first()
+        user_found = models.reader.objects.filter(email=email).first()
         if user_found:
-            if pwd == user_found.password:
+            if password_encrypted == user_found.password:
                 response = HttpResponseRedirect("/reader_page/")
-                response.delete_cookie("username")
                 response.set_cookie("user_id", user_found.id)
+                response.set_cookie("username", user_found.name)
                 return response
 
-    return render(request, "login.html")
+        user_found = models.librarian.objects.filter(email=email).first()
+        if user_found:
+            if password_encrypted == user_found.password:
+                response = HttpResponseRedirect("/librarian_page/")
+                response.set_cookie("user_id", user_found.id)
+                response.set_cookie("username", user_found.name)
+                return response
+
+    return render(request, f"{COMMON_PATH}login.html")
+
+
+def register(request):
+    if request.method == "POST" and request.POST:
+        name = request.POST.get("name")
+        phone = request.POST.get("phone")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        identity = request.POST.get("identity")
+        password_encrypted = password_encryption(password)
+
+        if identity == 'reader':
+            objects = models.reader.objects
+        elif identity == 'librarian':
+            objects = models.librarian.objects
+
+        user_found = objects.filter(email=email).first()
+        if user_found:
+            return render(request, f"{COMMON_PATH}register.html", {"error": "该邮箱已被注册！"})
+        else:
+            objects.create(
+                name=name,
+                phone=phone,
+                email=email,
+                password=password_encrypted,
+            )
+            return HttpResponseRedirect("/login/")
+
+    return render(request, f"{COMMON_PATH}register.html")
 
 
 #####################################################
@@ -79,7 +110,7 @@ def put_in(request):
     return render(request, f"{LIBRARIAN_PATH}book_put_in.html")
 
 
-def add_book(request):
+def book_add(request):
     global search_ISBN
     if request.method == "POST" and request.POST:
         librarian_id = request.COOKIES.get("user_id")
@@ -115,7 +146,6 @@ def book_info_add(request):
             s = states[2]
         if position == "图书流通室":
             s = states[0]
-        operator = request.POST.get("operator")
         models.book_info.objects.create(
             book_id=book_id,
             isbn=isbn,
@@ -143,10 +173,9 @@ def book_edit(request):
         edit_object.name = request.POST.get("name")
         edit_object.author = request.POST.get("author")
         edit_object.publisher = request.POST.get("publisher")
-        edit_object.ISBN = request.POST.get("ISBN")
+        edit_object.isbn = request.POST.get("ISBN")
         edit_object.date = request.POST.get("date")
-        edit_object.number = request.POST.get("num")
-        edit_object.operator = request.POST.get("operator")
+        edit_object.number = request.POST.get("number")
         edit_object.save()
         return redirect("/book_list/")
     return render(request, f"{LIBRARIAN_PATH}book_edit.html", {"book": edit_object})

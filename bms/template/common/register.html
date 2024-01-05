@@ -1,0 +1,57 @@
+{% extends './layout.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+
+        <div class="col-md-4">
+        </div>
+
+        <div class="col-md-4">
+            <div class="list-group">
+
+                <div container-fluid="text-center" class="text-center">
+                    <h1>用户注册</h1>
+                </div>
+
+                {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+                {% endif %}
+
+                <form class="content-wrap" role="form" action={% url 'register' %} method="post" accept-charset="utf-8">
+                    {% csrf_token %}
+                    <input class="form-control" name="name" type="text" placeholder="用户名">
+                    <br>
+                    <input class="form-control" name="phone" type="text" placeholder="手机号">
+                    <br>
+                    <input class="form-control" name="email" type="text" placeholder="邮箱">
+                    <br>
+                    <input class="form-control" name="password" type="password" placeholder="密码">
+                    <br>
+                    <p>
+                        <input type='radio' value='reader' name='identity'>读者
+                        <input type='radio' value='librarian' name='identity'>管理员
+                    <p>
+                    <br>
+                    <div class="action">
+                        <button type="submit" class="btn btn-primary btn-block">注册</button>
+                    </div>
+                </form>
+                <br>
+                <form class="content-wrap" role="form" action={% url 'register' %} method="get">
+                    <button type="submit" class="btn btn-primary btn-block"
+                        formaction={% url 'login' %}>返回
+                    </button>
+                </form>
+
+            </div>
+        </div>
+
+        <div class="col-md-4">
+        </div>
+
+    </div>
+</div>
+{% endblock %}

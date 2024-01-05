@@ -1,24 +1,23 @@
 import pymysql
-# from django.core.management import call_command
-# from django.db import connection
+from django.core.management import execute_from_command_line
 
 import os
+import sys
 from ruamel.yaml import YAML
 
 CONFIG_FILEPATH = "./config.yaml"
 
-if __name__ == "__main__":
+def init_database():
     if not os.path.exists(CONFIG_FILEPATH):
         raise Exception("Config file not exists!")
 
     config = YAML().load(open(CONFIG_FILEPATH))
-    info = config['info']
 
     conn = pymysql.connect(
-        host=info['host'],
-        port=info['port'],
-        user=info['user'],
-        password=info['password'],
+        host=config['database']['host'],
+        port=config['database']['port'],
+        user=config['database']['user'],
+        password=config['database']['password'],
         charset="utf8",
     )
 
@@ -51,3 +50,20 @@ if __name__ == "__main__":
     cursor.close()
     conn.close()
     print("Database initialized!")
+
+
+def init_project():
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+
+    project_dir = os.path.join(script_dir, 'bms')
+    sys.path.append(project_dir)
+    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "bms.settings")
+
+    execute_from_command_line(['bms/manage.py', 'migrate'])
+    execute_from_command_line(['bms/manage.py', 'makemigrations', 'app'])
+    execute_from_command_line(['bms/manage.py', 'migrate'])
+
+
+if __name__ == "__main__":
+    init_database()
+    init_project()

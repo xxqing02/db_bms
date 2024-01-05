@@ -26,7 +26,7 @@ urlpatterns = [
     # Common
     re_path(r"^$", views.login, name="login"),
     re_path(r"^login/", views.login, name="login"),
-    re_path(r"^register/", views.login, name="register"),
+    re_path(r"^register/", views.register, name="register"),
 
     # Reader
     re_path(r"^reader_page/", views.reader_page, name="reader_page"),
@@ -38,7 +38,7 @@ urlpatterns = [
     re_path(r"^librarian_page/", views.librarian_page, name="librarian_page"),
     re_path(r"^book_list/", views.book_list, name="book_list"),
     re_path(r"^book_put_in/", views.put_in, name="book_put_in"),
-    re_path(r"^book_add/", views.add_book, name="book_add"),
+    re_path(r"^book_add/", views.book_add, name="book_add"),
     re_path(r"^book_info_add/", views.book_info_add, name="book_info_add"),
     re_path(r"^book_process/", views.book_process, name="book_process"),
     re_path(r"^book_edit/", views.book_edit, name="book_edit"),

@@ -11,14 +11,15 @@
         </div>
 
         <div class="panel-body">
-            <p>在下面的输入框内补充信息</p>
             <form action="/book_info_add/" method="post">
                 {% csrf_token %}
 
                 <div class="input-group mb-3">
-                    <span class="input-group-text">day</span>
+                    {# IS IT RIGHT??? #}
+                    <span class="input-group-text">有效预约时长</span>
                     <input type="text" class="form-control" name="position">
                 </div>
+                <br>
 
                 <button type="submit" class="btn btn-primary">预约</button>
                 <button type="submit" formmethod="get" formaction="/reader_page/" class="btn btn-default">返回</button>
@@ -28,24 +29,3 @@
     </div>
 </div>
 {% endblock %}
-
-
-
-
-
-        <div>
-            <form action="/book_info_add/" method="post">
-                {% csrf_token %}
-
-                <div class="input-group mb-3">
-                    <span class="input-group-text">day</span>
-                    <input type="text" class="form-control" name="position">
-                </div>
-
-                <button type="submit" class="btn btn-primary">保存</button>
-                <button type="submit" formmethod="get" formaction="/reader_page/" class="btn btn-default">返回</button>
-            </form>
-        </div>
-</body>
-
-</html>
