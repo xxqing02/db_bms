@@ -32,25 +32,21 @@
         <div class="row">
             <!-- left -->
             <div class="col-md-8">
-                <div>
-                    <div>
-                        <br>
-                        <br>
-                        <br>
-                        <br>
-                        <br>
-                        <br>
-                        <br>
-                        <br>
-                        <div container-fluid="text-center" class="text-center">
-                            <h1>承瀚海之辽阔</h1>
-                        </div>
-                        <br>
-                        <br>
-                        <br>
-                        <br>
-                    </div>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <br>
+                <div container-fluid="text-center" class="text-center">
+                    <h1>承瀚海之辽阔</h1>
                 </div>
+                <br>
+                <br>
+                <br>
+                <br>
             </div>
 
             <!-- right -->
@@ -63,18 +59,16 @@
                     <br>
                     <br>
                     <br>
-                    <div>
-                        <form class="content-wrap" role="form" action="/login/" method="post">
-                            {% csrf_token %}
-                            <input class="form-control" name="id" type="text" placeholder="Userid">
-                            <br>
-                            <input class="form-control" name="password" type="password" placeholder="Password">
-                            <br>
-                            <div class="action">
-                                <button type="submit" class="btn btn-primary btn-block">login</button>
-                            </div>
-                        </form>
-                    </div>
+                    <form class="content-wrap" role="form" action="/login/" method="post">
+                        {% csrf_token %}
+                        <input class="form-control" name="id" type="text" placeholder="用户ID">
+                        <br>
+                        <input class="form-control" name="password" type="password" placeholder="密码">
+                        <br>
+                        <div class="action">
+                            <button type="submit" class="btn btn-primary btn-block">登录</button>
+                        </div>
+                    </form>
                 </div>
             </div>
 

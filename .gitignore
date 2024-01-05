@@ -1,5 +1,6 @@
 # Specific to the 'db_bms'
 config.yaml
+migrations
 
 
 # Byte-compiled / optimized / DLL files
