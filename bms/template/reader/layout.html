@@ -62,7 +62,7 @@
                     {# [NOTE] This is WRONG! #}
                     <a class="list-group-item" href={% url 'reader_page' %}>修改密码</a>
                     {# [NOTE] This is WRONG! It should be {% url 'logout' %} #}
-                    <a class="list-group-item" href="#">查看账单</a>
+                    <a class="list-group-item" href={% url 'bill' %}>查看账单</a>
                     {# [NOTE] There is a property should be added #}
                     <a class="list-group-item" href={% url 'get_reserve_book' %}>取走预约书籍</a>
                     <a class="list-group-item" href={% url 'login' %}>退出登录</a>

@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django_crontab",
     "app",
 ]
 
@@ -137,3 +138,18 @@ STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# about email
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp.163.com"
+EMAIL_PORT = 465
+EMAIL_HOST_USER = "gzy500699@163.com"
+EMAIL_HOST_PASSWORD = "XSHDBSHWOOSTCYID"
+EMAIL_USE_SSL = True
+EMAIL_USE_TLS = False
+
+# about crontab
+CRONJOBS = [
+    ("0 6 * * *", "app.cron.delete_reserve"),
+    ("0 6 * * *", "app.cron.expire_notice"),
+]

@@ -2,9 +2,10 @@ from django.shortcuts import render
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect
 from app import models
+from django.core.mail import send_mail
 import hashlib
 import time
-import datetime
+
 
 COMMON_PATH = "./common/"
 READER_PATH = "./reader/"
@@ -323,6 +324,15 @@ def return_book(request):
             reserve_book.save()
             book_info.state = states[3]
             book_info.save()
+
+            reader_id = int(reserve_book.reader_id.id)
+            reservation = models.reader.objects.filter(id=reader_id).first()
+            send_mail(
+                subject="预约书籍可借通知",
+                message="您好,您预约的书籍现在可以借阅了,请在10日内完成借阅手续,否则预约无效.",
+                from_email="gzy500699@163.com",
+                recipient_list=[reservation.email],
+            )
         else:
             book_info.state = states[0]
             book_info.save()

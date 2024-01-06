@@ -1,0 +1,41 @@
+{% extends './layout.html' %}
+
+{% block content %}
+<div class="col-md-9">
+    <div class="panel panel-primary">
+
+        <div class="panel-heading">
+            <h3 class="panel-title">账单
+                <i class="fa fa-book pull-right" aria-hidden="true"></i>
+            </h3>
+        </div>
+
+        <div class="panel-body">
+            <p>您的账单情况如下</p>
+            <br>
+
+            {% if reader %}
+            <!-- 按钮触发模态框 -->
+            <button class="btn btn-sm" data-toggle="modal" data-target="#myModal">查看账单</button>
+            <!-- 模态框（Modal） -->
+            <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                            <h4 class="modal-title" id="myModalLabel">账单</h4>
+                        </div>
+                        <div class="modal-body">bill:{{reader.bill}}</div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                        </div>
+                    </div><!-- /.modal-content -->
+                </div><!-- /.modal -->
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
