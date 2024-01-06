@@ -1,3 +1,4 @@
+from app.views import BaseView
 from django.shortcuts import render
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect
@@ -10,6 +11,86 @@ import time
 COMMON_PATH = "./common/"
 READER_PATH = "./reader/"
 LIBRARIAN_PATH = "./librarian/"
+
+class SystemView(BaseView):
+    def get(self, request, module):
+        if module == "login":
+            return render(request, f"{COMMON_PATH}login.html")
+
+        if module == "exit":
+            del request.session["userId"]
+            del request.session["userType"]
+            return HttpResponseRedirect("/login/")
+
+        # if module == "info":
+        #     return self._get_session_info(request)
+    
+    def post(self, request, module):
+        if module == "login":
+            return self._login(request)
+
+    def _login(self, request):
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        users = models.User.objects.filter(username=username)
+        warn_message = "用户名或密码错误！"
+
+        if users.exists():
+            user = users.first()
+
+            password_encrypted = password_encryption(password)
+            # password_encrypted = password
+            if password_encrypted == user.password:
+                request.session["user_id"] = user.id
+                request.session["user_type"] = user.type
+                return self._success()
+            else:
+                # Password mismatch
+                return self._warn(warn_message)
+        else:
+            # User not exists
+            return self._warn(warn_message)
+        
+        HttpResponseRedirect("/reader_page/")
+
+        user_found = models.Librarian.objects.filter(email=email).first()
+        if user_found:
+            if password_encrypted == user_found.password:
+                request.session["userId"] = user_found.id
+                request.session["userType"] = "librarian"
+                return HttpResponseRedirect("/librarian_page/")
+        return render(request, f"{COMMON_PATH}login.html")
+
+
+class ReaderView(BaseView):
+    def get(self, request, module):
+        if module == "reader_page":
+            return render(request, f"{READER_PATH}reader_page.html")
+
+        if module == "borrow_book":
+            return render(request, f"{READER_PATH}borrow_book.html")
+
+        if module == "reserve_book":
+            return render(request, f"{READER_PATH}reserve_book.html")
+
+        if module == "return_book":
+            return render(request, f"{READER_PATH}return_book.html")
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 # 可以用session来处理数据传递问题
 search_ISBN = ""
@@ -37,7 +118,7 @@ def login(request):
         password_encrypted = password_encryption(password)
         # password_encrypted = password
 
-        user_found = models.reader.objects.filter(email=email).first()
+        user_found = models.Reader.objects.filter(email=email).first()
         if user_found:
             if password_encrypted == user_found.password:
                 response = HttpResponseRedirect("/reader_page/")
@@ -45,7 +126,7 @@ def login(request):
                 response.set_cookie("username", user_found.name)
                 return response
 
-        user_found = models.librarian.objects.filter(email=email).first()
+        user_found = models.Librarian.objects.filter(email=email).first()
         if user_found:
             if password_encrypted == user_found.password:
                 response = HttpResponseRedirect("/librarian_page/")
@@ -66,9 +147,9 @@ def register(request):
         password_encrypted = password_encryption(password)
 
         if identity == "reader":
-            objects = models.reader.objects
+            objects = models.Reader.objects
         elif identity == "librarian":
-            objects = models.librarian.objects
+            objects = models.Librarian.objects
 
         user_found = objects.filter(email=email).first()
         if user_found:
@@ -95,7 +176,7 @@ def librarian_page(request):
 
 
 def book_list(request):
-    book = models.book.objects.all()
+    book = models.Book.objects.all()
     book_info = models.book_info.objects.all()
     list = {"book": book, "book_info": book_info}
     return render(request, f"{LIBRARIAN_PATH}book_list.html", list)
@@ -108,7 +189,7 @@ def put_in(request):
     if request.method == "POST" and request.POST:
         ISBN = request.POST.get("ISBN")
         search_ISBN = ISBN
-        saved_info = models.book.objects.filter(isbn=ISBN).first()
+        saved_info = models.Book.objects.filter(isbn=ISBN).first()
         if saved_info:
             return redirect("/book_info_add/")
         else:
@@ -120,12 +201,12 @@ def book_add(request):
     global search_ISBN
     if request.method == "POST" and request.POST:
         librarian_id = request.COOKIES.get("user_id")
-        librarian = models.librarian.objects.get(id=librarian_id)
+        librarian = models.Librarian.objects.get(id=librarian_id)
         name = request.POST.get("name")
         author = request.POST.get("author")
         publisher = request.POST.get("publisher")
         date = request.POST.get("date")
-        models.book.objects.create(
+        models.Book.objects.create(
             name=name,
             author=author,
             publisher=publisher,
@@ -144,9 +225,9 @@ def book_info_add(request):
     print(search_ISBN)
     if request.method == "POST" and request.POST:
         librarian_id = request.COOKIES.get("user_id")
-        librarian = models.librarian.objects.get(id=librarian_id)
+        librarian = models.Librarian.objects.get(id=librarian_id)
         book_id = request.POST.get("book_id")
-        isbn = models.book.objects.get(isbn=search_ISBN)
+        isbn = models.Book.objects.get(isbn=search_ISBN)
         position = request.POST.get("position")
         if position == book_position[0]:
             s = states[0]
@@ -167,16 +248,16 @@ def book_info_add(request):
 
 def del_book(request):
     drop_id = request.GET.get("id")
-    drop_object = models.book.objects.get(id=drop_id)
+    drop_object = models.Book.objects.get(id=drop_id)
     drop_object.delete()
     return redirect("/book_list/")
 
 
 def book_edit(request):
     edit_id = request.GET.get("id")
-    edit_object = models.book.objects.get(id=edit_id)
+    edit_object = models.Book.objects.get(id=edit_id)
     if request.method == "POST":
-        edit_object.name = request.POST.get("name")
+        edit_object.title = request.POST.get("name")
         edit_object.author = request.POST.get("author")
         edit_object.publisher = request.POST.get("publisher")
         edit_object.isbn = request.POST.get("ISBN")
@@ -226,10 +307,10 @@ def borrow_book(request):
     list = []
     global search_ISBN
     reader_id = request.COOKIES.get("user_id")
-    reader = models.reader.objects.filter(id=reader_id).first()
+    reader = models.Reader.objects.filter(id=reader_id).first()
     if request.method == "POST" and request.POST:
         ISBN = request.POST.get("ISBN")
-        saved_info = models.book.objects.filter(isbn=ISBN).first()
+        saved_info = models.Book.objects.filter(isbn=ISBN).first()
         if not saved_info:
             return render(
                 request, f"{READER_PATH}borrow_book.html", {"error": "本书未入库！"}
@@ -237,12 +318,12 @@ def borrow_book(request):
         else:
             # 可借书籍应该符合: 1.position=图书流通室 2.未借出
             # 将图书流通室的书籍加入列表,可借显示借阅,不可借显示预约
-            books = models.book_info.objects.filter(
+            books = models.BookInfo.objects.filter(
                 isbn=ISBN, position=book_position[0]
             ).all()
             # 自己借阅过的书不显示在列表中
             for book in books:
-                if models.borrow.objects.filter(
+                if models.Borrow.objects.filter(
                     book_id=book.book_id, reader_id=reader_id
                 ).first():
                     books = books.exclude(book_id=book.book_id)
@@ -251,12 +332,12 @@ def borrow_book(request):
 
     if request.method == "GET" and request.GET:
         book_id = request.GET.get("id")
-        id = models.book_info.objects.filter(book_id=book_id).first()
+        id = models.BookInfo.objects.filter(book_id=book_id).first()
         if id:
             print(id)
         else:
             print("error")
-        models.borrow.objects.create(
+        models.Borrow.objects.create(
             book_id=id,
             reader_id=reader,
             borrow_time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
@@ -264,27 +345,27 @@ def borrow_book(request):
                 "%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 15 * 24 * 60 * 60)
             ),
         )
-        borrow_record = models.borrow.objects.filter(book_id=book_id).first()
+        borrow_record = models.Borrow.objects.filter(book_id=book_id).first()
         list = {"books": books, "borrow_record": borrow_record}
         return render(request, f"{READER_PATH}borrow_book.html", list)
 
     return render(request, f"{READER_PATH}borrow_book.html")
 
 
-def reserve_book(request):
-    if request.method == "GET" and request.GET:
-        reader_id = request.COOKIES.get("user_id")
-        reader = models.reader.objects.filter(id=reader_id).first()
-        book_id = request.GET.get("id")
-        book_info = models.book_info.objects.filter(book_id=book_id).first()
-        ISBN = models.book.objects.filter(isbn=book_info.isbn_id).first()
-        models.reserve.objects.create(
-            reader_id=reader,
-            isbn=ISBN,
-            reserve_time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
-            reserve_days=10,
-        )
-    return render(request, f"{READER_PATH}borrow_book.html")
+# def reserve_book(request):
+#     if request.method == "GET" and request.GET:
+#         reader_id = request.COOKIES.get("user_id")
+#         reader = models.Reader.objects.filter(id=reader_id).first()
+#         book_id = request.GET.get("id")
+#         book_info = models.BookInfo.objects.filter(book_id=book_id).first()
+#         ISBN = models.Book.objects.filter(isbn=book_info.isbn_id).first()
+#         models.Reserve.objects.create(
+#             reader_id=reader,
+#             isbn=ISBN,
+#             reserve_time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
+#             reserve_days=10,
+#         )
+#     return render(request, f"{READER_PATH}borrow_book.html")
 
 
 def return_book(request):

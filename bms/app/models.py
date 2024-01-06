@@ -1,88 +1,109 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+import time
 
 
-class librarian(models.Model):
+class Reader(models.Model):
     id = models.AutoField(primary_key=True, unique=True, null=False)
-    name = models.CharField(max_length=80, null=False)
+    username = models.CharField(verbose_name='用户名', max_length=80, null=False)
     password = models.CharField(max_length=80, null=False)
-    phone = models.CharField(max_length=20, null=True)
-    email = models.CharField(max_length=80, unique=True, null=True)
-
+    phone = models.CharField(verbose_name='手机号', max_length=20, unique=True, null=False)
+    email = models.EmailField(verbose_name='邮箱', max_length=80, unique=True, null=False)
+    
     def __str__(self):
-        return self.name
+        return self.username
+    
+    class Meta:
+        db_table = 'reader'
+        verbose_name = '读者'
+        verbose_name_plural = verbose_name
 
 
-class reader(models.Model):
+class Librarian(models.Model):
     id = models.AutoField(primary_key=True, unique=True, null=False)
-    name = models.CharField(max_length=80, null=False)
+    username = models.CharField(max_length=80, null=False)
     password = models.CharField(max_length=80, null=False)
-    phone = models.CharField(max_length=20, null=True)
-    email = models.CharField(max_length=80, unique=True, null=True)
+    phone = models.CharField(max_length=20, unique=True, null=True)
+    email = models.EmailField(max_length=80, unique=True, null=True)
     bill = models.IntegerField(default=0)
 
     def __str__(self):
-        return self.name
+        return self.username
+    
+    class Meta:
+        db_table = 'librarian'
+        verbose_name = '图书管理员'
+        verbose_name_plural = verbose_name
 
 
-class book(models.Model):
+class Book(models.Model):
     id = models.AutoField(primary_key=True, null=False, unique=True)
-    name = models.CharField(max_length=20, null=False)
+    title = models.CharField(max_length=20, null=False)
     author = models.CharField(max_length=20, null=False)
     publisher = models.CharField(max_length=20, null=False)
     isbn = models.CharField(max_length=25, unique=True, null=False)
     date = models.CharField(max_length=20, null=False)
-    number = models.IntegerField(null=False, default=0)
-    operator = models.ForeignKey(librarian, on_delete=models.CASCADE)
+    number = models.PositiveIntegerField(null=False, default=0)
+    operator = models.ForeignKey(Librarian, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.name
+        return f"{self.title} by {self.author}"
+    
+    class Meta:
+        db_table = 'book'
+        verbose_name = '书目'
+        verbose_name_plural = verbose_name
 
 
-class book_info(models.Model):
+class BookInfo(models.Model):
     book_id = models.CharField(primary_key=True, max_length=20, null=False, unique=True)
-    isbn = models.ForeignKey(to="book", to_field="isbn", on_delete=models.CASCADE)
+    isbn = models.ForeignKey(to=Book, to_field="isbn", on_delete=models.CASCADE)
     position = models.CharField(max_length=20)
     state = models.CharField(max_length=20)
-    operator = models.ForeignKey(librarian, on_delete=models.CASCADE)
+    operator = models.ForeignKey(Librarian, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.book_id
+        return f"{self.isbn} {self.book_id}"
+    
+    class Meta:
+        db_table = 'book_info'
+        verbose_name = '图书信息'
+        verbose_name_plural = verbose_name
 
 
-# 借阅表
-class borrow(models.Model):
+class Borrow(models.Model):
     id = models.AutoField(primary_key=True)
-    reader_id = models.ForeignKey(reader, on_delete=models.CASCADE)
-    book_id = models.ForeignKey(book_info, on_delete=models.CASCADE)
-    # 借阅时间
+    reader_id = models.ForeignKey(to=Reader, on_delete=models.CASCADE)
+    book_id = models.ForeignKey(to=BookInfo, on_delete=models.CASCADE)
     borrow_time = models.DateTimeField(default="2000-01-01 00:00:00")
-    # 应还时间
     due_time = models.DateTimeField(default="2000-01-01 00:00:00")
-    # 归还时间
     return_time = models.DateTimeField(default="2000-01-01 00:00:00")
-    # 是否审核
     is_check = models.BooleanField(default=False)
-    # 是否归还
     is_return = models.BooleanField(default=False)
 
     def __str__(self):
         return self.id
+    
+    class Meta:
+        db_table = 'borrow'
+        verbose_name = '借阅记录'
+        verbose_name_plural = verbose_name
 
 
-# 预约表
-class reserve(models.Model):
+class Reserve(models.Model):
     id = models.AutoField(primary_key=True, unique=True)
-    reader_id = models.ForeignKey(reader, on_delete=models.CASCADE)
+    reader_id = models.ForeignKey(to=Reader, to_field=id, on_delete=models.CASCADE)
     book_id = models.ForeignKey(
-        book_info, on_delete=models.CASCADE, default=None, null=True
+        BookInfo, on_delete=models.CASCADE, default=None, null=True
     )
-    isbn = models.ForeignKey(to="book", to_field="isbn", on_delete=models.CASCADE)
-    reserve_time = models.DateTimeField(default="2000-01-01 00:00:00")
-    # 根据书到达时间判断此预约是否有效
-    book_arrive_time = models.DateTimeField(default=None, null=True)
-    # 预约有效天数 书到了x天内有效 x<=10
-    reserve_days = models.IntegerField(default=10)
+    isbn = models.ForeignKey(to=Book, to_field="isbn", on_delete=models.CASCADE)
+    reserve_time = models.DateTimeField(null=True, default=time.localtime())
+    reserve_days = models.PositiveIntegerField(default=10)
+    book_arrive_time = models.DateTimeField(null=True, default=None)
 
     def __str__(self):
-        return self.id
+        return f"{self.reader_id} {self.book_id}"
+    
+    class Meta:
+        db_table = 'reserve'
+        verbose_name = '预约记录'
+        verbose_name_plural = verbose_name

@@ -24,23 +24,23 @@ def init_database():
     cursor = conn.cursor()
 
     # Drop database if exists
-    query = "drop database if exists bms"
+    query = "DROP DATABASE IF EXISTS bms"
     cursor.execute(query)
 
     # Create database
-    query = "create database bms default charset utf8"
+    query = "CREATE DATABASE bms DEFAULT CHARSET utf8"
     cursor.execute(query)
 
-    query = "show databases"
+    query = "SHOW DATABASES"
     cursor.execute(query)
     print("Databases:")
     for row in cursor.fetchall():
         print(row)
 
-    query = "use bms"
+    query = "USE BMS"
     cursor.execute(query)
 
-    query = "show tables"
+    query = "SHOW TABLES"
     cursor.execute(query)
     print("Tables in bms:")
     for row in cursor.fetchall():
