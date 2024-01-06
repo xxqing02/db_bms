@@ -57,7 +57,7 @@ ROOT_URLCONF = "bms.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join(BASE_DIR,'template')],
+        "DIRS": [os.path.join(BASE_DIR, "template")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -86,11 +86,11 @@ config = YAML().load(open(CONFIG_FILEPATH))
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": 'bms',
-        "USER": config['database']['user'],
-        "HOST": config['database']['host'],
-        "PORT": config['database']['port'],
-        "PASSWORD": config['database']['password']
+        "NAME": "bms",
+        "USER": config["database"]["user"],
+        "HOST": config["database"]["host"],
+        "PORT": config["database"]["port"],
+        "PASSWORD": config["database"]["password"],
     }
 }
 

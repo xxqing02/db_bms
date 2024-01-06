@@ -21,17 +21,21 @@
                         <button class="btn btn-default" type="submit">搜索</button>
                     </span>
                     <span class="input-group-btn">
-                        <button class="btn btn-default" type="submit"
-                            formaction={% url 'reader_page' %}>返回</button>
+                        <button class="btn btn-default" type="submit" formaction={% url 'reader_page' %}>返回</button>
                     </span>
                 </div>
 
-                <!-- <input type="text" class="form-control" placeholder="输入ISBN以搜索" id="ISBN" name="ISBN">
-                <button class="btn btn-success" type="submit">GO!</button>
-                
-                <button type="submit" formmethod="get" formaction="/reader_page/"
-                    class="btn btn-default mt-3">返回</button> -->
             </form>
+
+            {% if error %}
+            <div>
+                <br>
+                <div class="alert alert-danger">
+                    <strong>错误!</strong> {{ error }}
+                </div>
+            </div>
+            {% endif %}
+
 
             <br>
             {% if books %}
@@ -53,8 +57,14 @@
 
                     {% if b.state == "未借出" %}
                     <td>
-                        <a href="/borrow_book/?id={{ b.book_id }}" class="btn btn-primary active"
-                            role="button">借阅</a>
+                        <a href="/borrow_book/?id={{ b.book_id }}" class="btn btn-primary active" role="button">借阅</a>
+                    </td>
+                    {% endif %}
+
+                    <!-- b.state为已借出或者已预约时,显示预约按钮 -->
+                    {% if b.state == "已借出" %}
+                    <td>
+                        <a href="/reserve_book/?id={{ b.book_id }}" class="btn btn-primary active" role="button">预约</a>
                     </td>
                     {% endif %}
                 </tr>

@@ -1,4 +1,42 @@
 {% extends './layout.html' %}
 
 {% block content %}
+<div class="col-md-9">
+    <div class="panel panel-primary">
+
+        <div class="panel-heading">
+            <h3 class="panel-title">归还图书
+                <i class="fa fa-book pull-right" aria-hidden="true"></i>
+            </h3>
+        </div>
+
+        <div class="panel-body">
+            <p>您的已借书目如下</p>
+            <br>
+
+            {% if borrow_record %}
+            <table class="table">
+                <tr>
+                    <th>图书ID</th>
+                    <th>借阅时间</th>
+                    <th>是否归还</th>
+                </tr>
+                {% for b in borrow_record %}
+                <tr>
+                    <td>{{ b.book_id }}</td>
+                    <td>{{ b.borrow_time }}</td>
+                    <td>{{ b.is_return }}</td>
+                    {% if not b.is_return %}
+                    <td>
+                        <a href="/return_book/?id={{ b.id }}" role="button">归还</a>
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </table>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
 {% endblock %}

@@ -19,6 +19,7 @@ class reader(models.Model):
     password = models.CharField(max_length=80, null=False)
     phone = models.CharField(max_length=20, null=True)
     email = models.CharField(max_length=80, unique=True, null=True)
+    bill = models.IntegerField(default=0)
 
     def __str__(self):
         return self.name
@@ -73,9 +74,14 @@ class borrow(models.Model):
 class reserve(models.Model):
     id = models.AutoField(primary_key=True, unique=True)
     reader_id = models.ForeignKey(reader, on_delete=models.CASCADE)
-    isbn = models.ForeignKey(book, to_field="isbn", on_delete=models.CASCADE)
+    book_id = models.ForeignKey(
+        book_info, on_delete=models.CASCADE, default=None, null=True
+    )
+    isbn = models.ForeignKey(to="book", to_field="isbn", on_delete=models.CASCADE)
     reserve_time = models.DateTimeField(default="2000-01-01 00:00:00")
-    # 预约有效天数
+    # 根据书到达时间判断此预约是否有效
+    book_arrive_time = models.DateTimeField(default=None, null=True)
+    # 预约有效天数 书到了x天内有效 x<=10
     reserve_days = models.IntegerField(default=10)
 
     def __str__(self):

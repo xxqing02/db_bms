@@ -31,8 +31,10 @@ urlpatterns = [
     # Reader
     re_path(r"^reader_page/", views.reader_page, name="reader_page"),
     re_path(r"^borrow_book/", views.borrow_book, name="borrow_book"),
-    re_path(r"^reserve_book/", views.reserve_book, name="reserve_book"),
     re_path(r"^return_book/", views.return_book, name="return_book"),
+    re_path(r"^bill/", views.bill, name="bill"),
+    re_path(r"^reserve_book/", views.reserve_book, name="reserve_book"),
+    re_path(r"^get_reserve_book/", views.get_reserve_book, name="get_reserve_book"),
 
     # Librarian
     re_path(r"^librarian_page/", views.librarian_page, name="librarian_page"),

@@ -4,6 +4,7 @@ from django.http import HttpResponseRedirect
 from app import models
 import hashlib
 import time
+import datetime
 
 COMMON_PATH = "./common/"
 READER_PATH = "./reader/"
@@ -12,14 +13,17 @@ LIBRARIAN_PATH = "./librarian/"
 # 可以用session来处理数据传递问题
 search_ISBN = ""
 states = ["未借出", "已借出", "不外借", "已预约"]
+book_position = ["图书流通室", "图书阅览室"]
 
 
 def password_encryption(password: str) -> str:
     return hashlib.sha256(password.encode("utf-8")).hexdigest()
 
+
 #####################################################
 # Common
 #####################################################
+
 
 def help(request):
     return render(request, "help.html")
@@ -60,9 +64,9 @@ def register(request):
         identity = request.POST.get("identity")
         password_encrypted = password_encryption(password)
 
-        if identity == 'reader':
+        if identity == "reader":
             objects = models.reader.objects
-        elif identity == 'librarian':
+        elif identity == "librarian":
             objects = models.librarian.objects
 
         user_found = objects.filter(email=email).first()
@@ -83,6 +87,7 @@ def register(request):
 #####################################################
 # Librarian
 #####################################################
+
 
 def librarian_page(request):
     return render(request, f"{LIBRARIAN_PATH}librarian_page.html")
@@ -142,10 +147,10 @@ def book_info_add(request):
         book_id = request.POST.get("book_id")
         isbn = models.book.objects.get(isbn=search_ISBN)
         position = request.POST.get("position")
-        if position == "图书阅览室":
-            s = states[2]
-        if position == "图书流通室":
+        if position == book_position[0]:
             s = states[0]
+        if position == book_position[1]:
+            s = states[2]
         models.book_info.objects.create(
             book_id=book_id,
             isbn=isbn,
@@ -183,7 +188,9 @@ def book_edit(request):
 
 def book_process(request):
     borrow = models.borrow.objects.all()
-    return render(request, f"{LIBRARIAN_PATH}book_process.html", {"borrow_list": borrow})
+    return render(
+        request, f"{LIBRARIAN_PATH}book_process.html", {"borrow_list": borrow}
+    )
 
 
 def approve_borrow(request):
@@ -204,13 +211,14 @@ def refuse_borrow(request):
     return redirect("/book_process/")
 
 
-
 #####################################################
 # Reader
 #####################################################
 
+
 def reader_page(request):
     return render(request, f"{READER_PATH}reader_page.html")
+
 
 def borrow_book(request):
     books = []
@@ -221,12 +229,22 @@ def borrow_book(request):
     if request.method == "POST" and request.POST:
         ISBN = request.POST.get("ISBN")
         saved_info = models.book.objects.filter(isbn=ISBN).first()
-        # !!!!!!!!!
         if not saved_info:
-            search_ISBN = ISBN
-            return redirect("/reserve_book/")
+            return render(
+                request, f"{READER_PATH}borrow_book.html", {"error": "本书未入库！"}
+            )  # 不可以预约没有入库的书籍
         else:
-            books = models.book_info.objects.filter(isbn=ISBN).all()
+            # 可借书籍应该符合: 1.position=图书流通室 2.未借出
+            # 将图书流通室的书籍加入列表,可借显示借阅,不可借显示预约
+            books = models.book_info.objects.filter(
+                isbn=ISBN, position=book_position[0]
+            ).all()
+            # 自己借阅过的书不显示在列表中
+            for book in books:
+                if models.borrow.objects.filter(
+                    book_id=book.book_id, reader_id=reader_id
+                ).first():
+                    books = books.exclude(book_id=book.book_id)
             list = {"books": books}
             return render(request, f"{READER_PATH}borrow_book.html", list)
 
@@ -241,6 +259,9 @@ def borrow_book(request):
             book_id=id,
             reader_id=reader,
             borrow_time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
+            due_time=time.strftime(
+                "%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 15 * 24 * 60 * 60)
+            ),
         )
         borrow_record = models.borrow.objects.filter(book_id=book_id).first()
         list = {"books": books, "borrow_record": borrow_record}
@@ -248,22 +269,99 @@ def borrow_book(request):
 
     return render(request, f"{READER_PATH}borrow_book.html")
 
-#############未实现###############
+
 def reserve_book(request):
-    global search_ISBN
-    if request.method == "POST" and request.POST:
+    if request.method == "GET" and request.GET:
         reader_id = request.COOKIES.get("user_id")
         reader = models.reader.objects.filter(id=reader_id).first()
-        book = models.book.objects.filter(isbn=search_ISBN).first()
-        day = request.POST.get("day")
+        book_id = request.GET.get("id")
+        book_info = models.book_info.objects.filter(book_id=book_id).first()
+        ISBN = models.book.objects.filter(isbn=book_info.isbn_id).first()
         models.reserve.objects.create(
             reader_id=reader,
-            isbn=book,
+            isbn=ISBN,
             reserve_time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
-            reserve_days=day,
+            reserve_days=10,
         )
-    return render(request, f"{READER_PATH}reserve_book.html")
+    return render(request, f"{READER_PATH}borrow_book.html")
 
 
 def return_book(request):
-    return render(request, f"{READER_PATH}return_book.html")
+    # 展示还书列表
+    reader_id = request.COOKIES.get("user_id")
+    reader = models.reader.objects.filter(id=reader_id).first()
+    borrow_record = models.borrow.objects.filter(reader_id=reader_id).all()
+    list = {"borrow_record": borrow_record}
+    # 处理还书业务
+    if request.method == "GET" and request.GET:
+        id = request.GET.get("id")
+        record = models.borrow.objects.filter(id=id).first()
+        return_time = time.localtime()
+        record.return_time = time.strftime("%Y-%m-%d %H:%M:%S", return_time)
+        record.is_return = True
+        record.save()
+        # 罚金计算公式为：罚金=（归还时间-应还时间）* fine 元/天,不足一天按一天计算
+        now = time.time()
+        due_time = record.due_time.timestamp()
+        fine = 2  # 罚金/天
+        if now > due_time:
+            bill = (now - due_time) / (24 * 60 * 60) * fine
+            reader.bill += bill
+            reader.save()
+        # 修改图书状态,系统同时自动查询预约reserve(ISBN)其他读者预约该书(book_id)的记录，
+        # 则将该图书的状态修改为“已预约”，并将该图书ID写入相应的预约记录中
+        # 系统在清除超出预约期限的记录时解除该图书的“已预约”状态；否则，将该图书的状态修改为“未借出”。
+        # 根据id找到borrow表中的book_id,根据book_id找到book_info表中的isbn,根据isbn找到reserve表
+        book_info = models.book_info.objects.filter(book_id=record.book_id).first()
+        # 保证reserve的isbn不同,这要求被预约的书不能重复预约
+        reserve_book = models.reserve.objects.filter(isbn=book_info.isbn).first()
+        if reserve_book:
+            reserve_book.book_id = book_info
+            reserve_book.book_arrive_time = time.strftime(
+                "%Y-%m-%d %H:%M:%S", return_time
+            )
+            reserve_book.save()
+            book_info.state = states[3]
+            book_info.save()
+        else:
+            book_info.state = states[0]
+            book_info.save()
+
+        return redirect("/reader_page/")
+    return render(request, f"{READER_PATH}return_book.html", list)
+
+
+def get_reserve_book(request):
+    # 读者取书,问题是book_info里的经办人不知道是谁
+    reader_id = request.COOKIES.get("user_id")
+    reader = models.reader.objects.filter(id=reader_id).first()
+    reserve_book = models.reserve.objects.filter(reader_id=reader_id).all()
+    if request.method == "GET":
+        for book in reserve_book:
+            if book.book_arrive_time:
+                book_info = models.book_info.objects.filter(
+                    book_id=book.book_id
+                ).first()
+                book_info.state = states[1]
+                book_info.save()
+                models.borrow.objects.create(
+                    book_id=book_info,
+                    reader_id=reader,
+                    borrow_time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
+                    due_time=time.strftime(
+                        "%Y-%m-%d %H:%M:%S",
+                        time.localtime(time.time() + 15 * 24 * 60 * 60),
+                    ),
+                )
+                book.delete()
+
+    return render(
+        request, f"{READER_PATH}get_reserve_book.html", {"reserve_record": reserve_book}
+    )
+
+
+def bill(request):
+    reader_id = request.COOKIES.get("user_id")
+    reader = models.reader.objects.filter(id=reader_id).first()
+    list = {"reader": reader}
+    return render(request, f"{READER_PATH}bill.html", list)
