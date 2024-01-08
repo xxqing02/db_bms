@@ -4,8 +4,7 @@ from django.http import HttpResponseRedirect
 from app import models
 from django.core.mail import send_mail
 import hashlib
-import time
-
+from datetime import datetime,timedelta
 
 COMMON_PATH = "./common/"
 READER_PATH = "./reader/"
@@ -256,13 +255,14 @@ def borrow_book(request):
             print(id)
         else:
             print("error")
+        now_time = datetime.now()
+        after_time =  (now_time + timedelta(seconds=10)).strftime("%Y-%m-%d %H:%M:%S")
+        now_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         models.borrow.objects.create(
             book_id=id,
             reader_id=reader,
-            borrow_time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
-            due_time=time.strftime(
-                "%Y-%m-%d %H:%M:%S", time.localtime(time.time() + 15 * 24 * 60 * 60)
-            ),
+            borrow_time=now_time,
+            due_time=after_time,
         )
         borrow_record = models.borrow.objects.filter(book_id=book_id).first()
         list = {"books": books, "borrow_record": borrow_record}
@@ -278,10 +278,11 @@ def reserve_book(request):
         book_id = request.GET.get("id")
         book_info = models.book_info.objects.filter(book_id=book_id).first()
         ISBN = models.book.objects.filter(isbn=book_info.isbn_id).first()
+        now_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         models.reserve.objects.create(
             reader_id=reader,
             isbn=ISBN,
-            reserve_time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
+            reserve_time=now_time,
             reserve_days=10,
         )
     return render(request, f"{READER_PATH}borrow_book.html")
@@ -293,17 +294,17 @@ def return_book(request):
     reader = models.reader.objects.filter(id=reader_id).first()
     borrow_record = models.borrow.objects.filter(reader_id=reader_id).all()
     list = {"borrow_record": borrow_record}
+    now_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     # 处理还书业务
     if request.method == "GET" and request.GET:
         id = request.GET.get("id")
         record = models.borrow.objects.filter(id=id).first()
-        return_time = time.localtime()
-        record.return_time = time.strftime("%Y-%m-%d %H:%M:%S", return_time)
+        record.return_time = now_time
         record.is_return = True
         record.save()
         # 罚金计算公式为：罚金=（归还时间-应还时间）* fine 元/天,不足一天按一天计算
-        now = time.time()
         due_time = record.due_time.timestamp()
+        now=now_time.timestamp()
         fine = 2  # 罚金/天
         if now > due_time:
             bill = (now - due_time) / (24 * 60 * 60) * fine
@@ -318,9 +319,7 @@ def return_book(request):
         reserve_book = models.reserve.objects.filter(isbn=book_info.isbn).first()
         if reserve_book:
             reserve_book.book_id = book_info
-            reserve_book.book_arrive_time = time.strftime(
-                "%Y-%m-%d %H:%M:%S", return_time
-            )
+            reserve_book.book_arrive_time = now_time
             reserve_book.save()
             book_info.state = states[3]
             book_info.save()
@@ -354,14 +353,13 @@ def get_reserve_book(request):
                 ).first()
                 book_info.state = states[1]
                 book_info.save()
+                now_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                now_time_plus_10s = (datetime.now() + timedelta(seconds=10)).strftime("%Y-%m-%d %H:%M:%S")
                 models.borrow.objects.create(
                     book_id=book_info,
                     reader_id=reader,
-                    borrow_time=time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()),
-                    due_time=time.strftime(
-                        "%Y-%m-%d %H:%M:%S",
-                        time.localtime(time.time() + 15 * 24 * 60 * 60),
-                    ),
+                    borrow_time=now_time(),
+                    due_time=now_time_plus_10s,
                 )
                 book.delete()
 

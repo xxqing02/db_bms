@@ -118,13 +118,14 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
-
-TIME_ZONE = "UTC"
 
 USE_I18N = True
 
-USE_TZ = True
+LANGUAGE_CODE = "en-us"
+
+TIME_ZONE = "Asia/Shanghai"
+
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -150,6 +151,7 @@ EMAIL_USE_TLS = False
 
 # about crontab
 CRONJOBS = [
-    ("0 6 * * *", "app.cron.delete_reserve"),
-    ("0 6 * * *", "app.cron.expire_notice"),
+    # ("*/1 * * * *", "app.cron.delete_reserve"),
+    # ("*/1 * * * *", "app.cron.expire_notice"),
+    ("* * * * *", "app.cron.print_hello>>/tmp/cron.log")
 ]
