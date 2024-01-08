@@ -2,7 +2,6 @@ import datetime
 from django.core.mail import send_mail
 import models
 
-# 删除过期预约
 def delete_reserve():
     reserve_list = models.reserve.objects.all()
     for i in reserve_list:
@@ -18,7 +17,6 @@ def delete_reserve():
             i.delete()
 
 
-# 到期没有归还
 def expire_notice():
     borrow_list = models.borrow.objects.all()
     for i in borrow_list:
