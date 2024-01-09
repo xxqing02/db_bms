@@ -78,20 +78,20 @@ DEFAULT_CHARSET = "utf-8"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-CONFIG_FILEPATH = "config.yaml"
-if not os.path.exists(CONFIG_FILEPATH):
-    raise Exception("Config file not exists!")
+# CONFIG_FILEPATH = "config.yaml"
+# if not os.path.exists(CONFIG_FILEPATH):
+#     raise Exception("Config file not exists!")
 
-config = YAML().load(open(CONFIG_FILEPATH))
+# config = YAML().load(open(CONFIG_FILEPATH))
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "bms",
-        "USER": config["database"]["user"],
-        "HOST": config["database"]["host"],
-        "PORT": config["database"]["port"],
-        "PASSWORD": config["database"]["password"],
+        "USER": "root",
+        "HOST": "localhost",
+        "PORT": 3306,
+        "PASSWORD": "123456",
     }
 }
 
@@ -133,7 +133,7 @@ USE_TZ = False
 
 STATIC_URL = "/static/"
 
-STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
+# STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -153,5 +153,5 @@ EMAIL_USE_TLS = False
 CRONJOBS = [
     # ("*/1 * * * *", "app.cron.delete_reserve"),
     # ("*/1 * * * *", "app.cron.expire_notice"),
-    ("* * * * *", "app.cron.print_hello>>/tmp/cron.log")
+    ("*/1 * * * *", "app.cron.print_time",">>~/cron.log 2>&1")
 ]

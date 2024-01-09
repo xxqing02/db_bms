@@ -1,6 +1,5 @@
 import datetime
 from django.core.mail import send_mail
-import models
 
 def delete_reserve():
     reserve_list = models.reserve.objects.all()
@@ -29,5 +28,5 @@ def expire_notice():
                 recipient_list=[reader_email],
             )
 
-def print_hello():
-    print('hello')
+def print_time():
+    print(datetime.datetime.now())
