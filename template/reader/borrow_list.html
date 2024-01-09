@@ -1,0 +1,31 @@
+{% extends "reader/with_nav.html" %}
+
+{% block main_content %}
+    <div class="main-section">
+
+    {% if borrow_list %}
+    <table class="table">
+        <tr>
+            <th>ISBN</th>
+            <th>图书编号</th>
+            <th>借阅时间</th>
+            <th>是否归还</th>
+        </tr>
+        {% for copy in borrow_list %}
+        <tr>
+            <td>{{ copy.isbn_id }}</td>
+            <td>{{ copy.id }}</td>
+            <td>{{ copy.borrow_time }}</td>
+            <td>{{ copy.is_return }}</td>
+            {% if not copy.is_return %}
+            <td>
+                <a href="/return_book/?id={{ copy.id }}" role="button">归还</a>
+            </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+        <p>暂无借阅记录<p>
+    {% endif %}
+{% endblock %}

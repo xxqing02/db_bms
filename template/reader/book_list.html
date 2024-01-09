@@ -7,7 +7,6 @@
             <button type="submit">搜索</button>
         </form>
 
-
         {% if not books %}
             {% if search %}
                 <p>没有找到相关书目</p>
@@ -24,8 +23,8 @@
                         <th>出版社</th>
                         <th>ISBN</th>
                         <th>出版年月</th>
-                        <th>数量</th>
-                        <th>经办人</th>
+                        <th>册数</th>
+                        {% comment %} <th>经办人</th> {% endcomment %}
                         <th>操作</th>
                     </tr>
                 </thead>
@@ -39,9 +38,10 @@
                             <td>{{ book.isbn }}</td>
                             <td>{{ book.date }}</td>
                             <td>{{ book.number }}</td>
-                            <td>{{ book.operator }}</td>
+                            {% comment %} <td>{{ book.operator }}</td> {% endcomment %}
                             <td>
-                                <a href="/book/info/{{ book.id }}">详情</a>
+                                {% comment %} <a href="/book_info/{{ book.id }}">详情</a> {% endcomment %}
+                                <a href="{% url 'reader_borrow' book.id %}">借阅</a>
                             </td>
                         </tr>
                     {% endfor %}

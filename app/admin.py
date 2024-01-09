@@ -15,13 +15,13 @@ class BookAdmin(admin.ModelAdmin):
     search_fields = ('id', 'title', 'author', 'publisher', 'isbn', 'date')
     list_filter = ('operator',)
 
-class BookInfoAdmin(admin.ModelAdmin):
+class BookCopyAdmin(admin.ModelAdmin):
     list_display = ('id', 'isbn_id', 'position', 'state', 'operator')
     search_fields = ('id', 'isbn_id', 'position')
     list_filter = ('position',)
 
 
-admin.site.register(models.Reader, ReaderInfoAdmin)
-admin.site.register(models.Librarian, LibrarianInfoAdmin)
-admin.site.register(models.Book, BookAdmin)
-admin.site.register(models.BookInfo, BookInfoAdmin)
+admin.site.register(models.Reader)
+admin.site.register(models.Librarian)
+admin.site.register(models.Book)
+admin.site.register(models.BookCopy)

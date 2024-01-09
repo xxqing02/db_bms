@@ -13,7 +13,7 @@ class Reader(models.Model):
         return self.username
     
     class Meta:
-        db_table = 'reader'
+        db_table = 'readers'
         verbose_name = '读者'
         verbose_name_plural = verbose_name
 
@@ -29,7 +29,7 @@ class Librarian(models.Model):
         return self.username
     
     class Meta:
-        db_table = 'librarian'
+        db_table = 'librarians'
         verbose_name = '图书管理员'
         verbose_name_plural = verbose_name
 
@@ -41,20 +41,20 @@ class Book(models.Model):
     publisher = models.CharField(verbose_name='出版商', max_length=50)
     isbn = models.CharField(verbose_name='ISBN', unique=True, max_length=25)
     date = models.DateField(verbose_name='出版年月')
-    number = models.PositiveIntegerField(verbose_name='数量', default=0)
+    number = models.PositiveIntegerField(verbose_name='册数', default=0)
     operator = models.ForeignKey(verbose_name='经办人', to=Librarian, to_field='id', on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.title} by {self.author}"
     
     class Meta:
-        db_table = 'book'
+        db_table = 'books'
         verbose_name = '书目'
         verbose_name_plural = verbose_name
 
 
-class BookInfo(models.Model):
-    id = models.CharField(verbose_name='图书信息编号', primary_key=True, unique=True, max_length=20)
+class BookCopy(models.Model):
+    id = models.CharField(verbose_name='图书册号', primary_key=True, unique=True, max_length=20)
     isbn = models.ForeignKey(verbose_name='ISBN', to=Book, to_field='isbn', on_delete=models.CASCADE)
     position_choices = (
         (1, "图书流通室"),
@@ -74,15 +74,15 @@ class BookInfo(models.Model):
         return f"{self.isbn} {self.id}"
     
     class Meta:
-        db_table = 'book_info'
-        verbose_name = '图书信息'
+        db_table = 'book_copies'
+        verbose_name = '书册'
         verbose_name_plural = verbose_name
 
 
-class Borrow(models.Model):
+class BorrowRecord(models.Model):
     id = models.AutoField(verbose_name='借阅记录编号', primary_key=True, unique=True)
     reader_id = models.ForeignKey(verbose_name='读者编号', to=Reader, to_field='id', on_delete=models.CASCADE)
-    book_info_id = models.ForeignKey(verbose_name='图书信息编号', to=BookInfo, to_field='id', on_delete=models.CASCADE)
+    copy_id = models.ForeignKey(verbose_name='图书册号', to=BookCopy, to_field='id', on_delete=models.CASCADE)
     borrow_time = models.DateTimeField(verbose_name='借阅时间', default=time.localtime())
     due_time = models.DateTimeField(verbose_name='应还时间', default="2000-01-01 00:00:00")
     return_time = models.DateTimeField(verbose_name='归还时间', null=True, blank=True)
@@ -100,15 +100,15 @@ class Borrow(models.Model):
         return '已归还' if self.is_return else '未归还'
     
     class Meta:
-        db_table = 'borrow'
+        db_table = 'borrow_records'
         verbose_name = '借阅记录'
         verbose_name_plural = verbose_name
 
 
-class Reserve(models.Model):
+class ReserveRecord(models.Model):
     id = models.AutoField(verbose_name='预约记录编号', primary_key=True, unique=True)
     reader_id = models.ForeignKey(verbose_name='读者编号', to=Reader, to_field='id', on_delete=models.CASCADE)
-    book_info_id = models.ForeignKey(verbose_name='图书信息编号', to=BookInfo, to_field='id', on_delete=models.CASCADE)
+    book_info_id = models.ForeignKey(verbose_name='图书信息编号', to=BookCopy, to_field='id', on_delete=models.CASCADE)
     isbn = models.ForeignKey(verbose_name='ISBN', to=Book, to_field='isbn', on_delete=models.CASCADE)
     reserve_time = models.DateTimeField(verbose_name='预约时间', null=True, default=time.localtime())
     reserve_days = models.PositiveIntegerField(verbose_name='预约有效天数', default=10)
@@ -118,7 +118,7 @@ class Reserve(models.Model):
         return f"{self.reader_id} {self.book_info_id}"
     
     class Meta:
-        db_table = 'reserve'
+        db_table = 'reserve_records'
         verbose_name = '预约记录'
         verbose_name_plural = verbose_name
 

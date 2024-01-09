@@ -11,11 +11,12 @@
 
         {% if not books %}
             {% if search %}
-                <p>没有找到相关书目</p>
+                <p class="bold-text">没有找到相关书目</p>
             {% else %}
-                <p>暂无书目</p>
+                <p class="bold-text">暂无书目</p>
             {% endif %}
         {% else %}
+            <p class="bold-text">共 {{ books|length }} 条记录</p>
             <table class="table-style">
                 <thead>
                     <tr>
@@ -41,7 +42,7 @@
                             <td>{{ book.number }}</td>
                             <td>{{ book.operator }}</td>
                             <td>
-                                <a href="/book_edit/{{ book.id }}">编辑</a>
+                                <a href="{% url 'librarian_edit' book.id %}">编辑</a>
                                 <a href="/book_delete/{{ book.id }}">删除</a>
                             </td>
                         </tr>
