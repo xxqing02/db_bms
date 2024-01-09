@@ -1,0 +1,53 @@
+{% extends "librarian/with_nav.html" %}
+
+{% block main_content %}
+    <div class="main-section">
+        <form method="get" action="{% url 'librarian_book_list' %}" class="search-bar">
+            <input type="text" name="search" placeholder="书名/作者/ISBN" value="{{ search }}">
+            <button type="submit">搜索</button>
+        </form>
+
+        <button href="/book/add" class="button-common">+ 书目入库</button>
+
+        {% if not books %}
+            {% if search %}
+                <p>没有找到相关书目</p>
+            {% else %}
+                <p>暂无书目</p>
+            {% endif %}
+        {% else %}
+            <table class="table-style">
+                <thead>
+                    <tr>
+                        <th>书名</th>
+                        <th>作者</th>
+                        <th>出版社</th>
+                        <th>ISBN</th>
+                        <th>出版年月</th>
+                        <th>数量</th>
+                        <th>经办人</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for book in books %}
+                        <tr>
+                            <td>{{ book.title }}</td>
+                            <td>{{ book.author }}</td>
+                            <td>{{ book.publisher }}</td>
+                            <td>{{ book.isbn }}</td>
+                            <td>{{ book.date }}</td>
+                            <td>{{ book.number }}</td>
+                            <td>{{ book.operator }}</td>
+                            <td>
+                                <a href="/book_edit/{{ book.id }}">编辑</a>
+                                <a href="/book_delete/{{ book.id }}">删除</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    </div>
+{% endblock %}

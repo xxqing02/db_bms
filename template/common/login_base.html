@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}
+    登录图书管理系统
+{% endblock %}
+
+{% block content %}
+<div class="box centered-box login-box">
+    <a class="symbol" href="{% url 'entry' %}">&lt;</a>
+    <div class="h-centered-section">
+        <h2>{% block box_title %}{% endblock %}</h2>
+        {% if error %}
+            <p class="error-text">{{ error }}</p>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <input name="username" placeholder="用户名" required>
+            <input type="password" name="password" placeholder="密码" required>
+        </form>
+
+        <button onclick="document.forms[0].submit()">登录</button>
+        <a class="link" href="{% block register_url %}{% endblock %}">
+            没有账号？点击注册
+        </a>
+    </div>
+</div>
+{% endblock %}

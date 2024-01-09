@@ -1,0 +1,9 @@
+{% extends "common/login_base.html" %}
+
+{% block box_title %}
+    管理员您好，请先登录
+{% endblock %}
+
+{% block register_url %}
+    {% url 'register_librarian' %}
+{% endblock %}

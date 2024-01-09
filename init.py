@@ -1,8 +1,8 @@
 import pymysql
 from django.core.management import execute_from_command_line
+from django.conf import settings
 
 import os
-import sys
 from ruamel.yaml import YAML
 
 CONFIG_FILEPATH = "./config.yaml"
@@ -30,22 +30,7 @@ def init_database():
     # Create database
     query = "CREATE DATABASE bms DEFAULT CHARSET utf8"
     cursor.execute(query)
-
-    query = "SHOW DATABASES"
-    cursor.execute(query)
-    print("Databases:")
-    for row in cursor.fetchall():
-        print(row)
-
-    query = "USE BMS"
-    cursor.execute(query)
-
-    query = "SHOW TABLES"
-    cursor.execute(query)
-    print("Tables in bms:")
-    for row in cursor.fetchall():
-        print(row)
-    
+  
     # Quit
     cursor.close()
     conn.close()
@@ -53,15 +38,9 @@ def init_database():
 
 
 def init_project():
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-
-    project_dir = os.path.join(script_dir, 'bms')
-    sys.path.append(project_dir)
-    os.environ.setdefault("DJANGO_SETTINGS_MODULE", "bms.settings")
-
-    execute_from_command_line(['bms/manage.py', 'migrate'])
-    execute_from_command_line(['bms/manage.py', 'makemigrations', 'app'])
-    execute_from_command_line(['bms/manage.py', 'migrate'])
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'bms.settings')
+    execute_from_command_line(['manage.py', 'makemigrations', 'app'])
+    execute_from_command_line(['manage.py', 'migrate'])
 
 
 if __name__ == "__main__":

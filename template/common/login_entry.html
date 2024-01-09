@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}
+    登录图书管理系统
+{% endblock %}
+
+{% block content %}
+<div class="vertical-align">
+    <div class="split-left">
+        <h1>承瀚海之辽阔</h1>
+    </div>
+
+    <div class="split-right">
+        <div class="box h-centered-section">
+            <h2>欢迎使用图书管理系统</h2>
+            <button onclick="window.location.href='{% url 'login_reader' %}'">读者入口</button>
+            <button onclick="window.location.href='{% url 'login_librarian' %}'">图书管理员入口</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

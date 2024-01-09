@@ -1,0 +1,340 @@
+:root {
+    --nav-width: 260px;
+}
+
+body {
+    height: 100vh;
+    font-family: verdana;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    background: linear-gradient(180deg, rgb(219, 227, 236), rgb(179, 200, 216), rgb(118, 155, 185));
+}
+
+/****************************************************/
+/*                     SIDE NAV                     */
+/****************************************************/
+
+.side-nav {
+    width: var(--nav-width);
+    height: 100%;
+    position: fixed;
+    background-color: #3e516d;
+    z-index: 1;
+    overflow-x: hidden;
+}
+
+.side-nav .header {
+    background-color: #202a35;
+    padding: 25px;
+    transition: 0.3s;
+}
+
+.side-nav .header .title {
+    color: #f1f1f1;
+    text-align: center;
+    font-size: 35px;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.side-nav .header .subtitle {
+    text-align: center;
+    color: #b1b1b1;
+    font-size: 20px;
+    font-weight: normal;
+    padding-top: 16px;
+}
+
+.side-nav .separator {
+    width: 100%;
+    height: 1px;
+    background-color: #f0f0f0;
+}
+
+.side-nav .option a {
+    height: 26px;
+    color: #f1f1f1;
+    text-decoration: none;
+    font-size: 22px;
+    font-weight: lighter;
+    padding: 35px;
+    display: block;
+    transition: 0.3s;
+}
+
+.side-nav .option a:hover {
+    color: #f1f1f1;
+    font-size: 25px;
+    background-color: #35404d;
+}
+
+.side-nav .option a.current {
+    color: #f1f1f1;
+    background-color: #35404d;
+}
+
+
+/****************************************************/
+/*                   MAIN SECTION                   */
+/****************************************************/
+
+.main-section {
+    width: 100%;
+    margin-left: var(--nav-width);
+    padding: 30px;
+    flex-direction: column;
+}
+
+.main-section h1 {
+    font-size: 48px;
+    font-weight: bold;
+    color: #141414;
+}
+
+.search-bar {
+    width: 100%;
+    height: 45px;
+    display: flex;
+    margin: 30px 0;
+    flex-direction: row;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.116);
+}
+
+.search-bar input {
+    width: 100%;
+    background-color: #f1f1f1;
+    font-size: 18px;
+    border: none;
+    border-radius: 5px;
+    padding: 15px;
+}
+
+.search-bar button {
+    width: 100px;
+    color: #f1f1f1;
+    background-color: #28394d;
+    font-size: 20px;
+    text-align: center;
+    text-wrap: nowrap;
+    border: none;
+    border-radius: 5px;
+}
+
+.search-bar input:focus {
+    outline: none;
+}
+
+.search-bar button:hover {
+    background-color: #3e516d;
+    cursor: pointer;
+}
+
+.button-common {
+    font-size: 20px;
+    color: #f1f1f1;
+    background-color: #323d4e;
+    border: none;
+    text-align: center;
+    text-decoration: none;
+    text-wrap: nowrap;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.button-common:hover {
+    background-color: #3e516d;
+}
+
+.main-section table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 30px;
+    transition: 0.3s;
+}
+
+.main-section th {
+    font-size: 20px;
+    font-weight: bold;
+    padding: 12px;
+    color: #f1f1f1;
+    background-color: #59697c;
+}
+
+.main-section td {
+    font-size: 16px;
+    font-weight: normal;
+    text-align: center;
+    padding: 12px;
+}
+
+.main-section tr {
+    background-color: #eeeeee;
+}
+
+.main-section tr:nth-child(even) {
+    background-color: #e0e7e9;
+}
+
+.main-section tr:hover {
+    background-color: #afd7e9;
+}
+
+.main-section table a {
+    color: #666666;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.main-section p {
+    padding: 10px;
+    font-size: 20px;
+    font-weight: normal;
+}
+
+.split-left {
+    margin-right: 180px;
+}
+
+.split-right {
+    margin-left: 180px;
+}
+
+.vertical-align {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    text-wrap: nowrap;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+}
+
+.vertical-align h1 {
+    font-size: 60px;
+    font-weight: bold;
+    color: #3e4958;
+}
+
+.box {
+    background-color: #ebebeb4b;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.199);
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+}
+
+.centered-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.entry-box {
+    width: 500px;
+}
+
+.login-box {
+    width: 450px;
+}
+
+.register-box {
+    width: 450px;
+}
+
+.box h2 {
+    text-wrap: nowrap;
+    font-size: 42px;
+    font-weight: bold;
+    color: #374d5f;
+}
+
+.box button {
+    width: 260px;
+    padding: 15px;
+    margin: 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 25px;
+    font-weight: normal;
+    color: #ececec;
+    background-color: rgb(70, 129, 177);
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.box button:hover {
+    background-color: rgba(66, 170, 255, 0.8);
+}
+
+.box form {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+}
+
+.box .error-text {
+    border: none;
+    border-radius: 5px;
+    font-size: 25px;
+    font-weight: normal;
+    color: #c00000;
+}
+
+.box form input {
+    width: 100%;
+    padding: 10px;
+    margin: 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 18px;
+    font-weight: normal;
+    color: #222222;
+    background-color: #f0f0f0;
+}
+
+.box .link {
+    color: #0e3849;
+    border: none;
+    text-align: center;
+    text-decoration: none;
+    text-wrap: nowrap;
+    font-size: 18px;
+    padding: 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.box .link:hover {
+    color: #e4e4e4;
+}
+
+.box .symbol {
+    color: #59697c;
+    border: none;
+    text-decoration: none;
+    text-wrap: nowrap;
+    font-size: 48px;
+    text-align: left;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.box .symbol:hover {
+    transform: translateX(-8px);
+}
+
+.h-centered-section {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}

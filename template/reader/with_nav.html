@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}
+    图书管理系统
+{% endblock %}
+
+{% block content %}
+    <div class="side-nav">
+        <div class="header">
+            <a class="title" href="{% url 'reader_home' %}">
+                图书管理系统
+            </a>
+            <div class="subtitle">你好，{{ request.session.reader_name }}</div>
+        </div>
+
+        <div class="separator"></div>
+
+        <div class="option">
+            <a href={% url 'reader_book_list' %}
+                {% if request.path == '/reader/book_list' %}
+                    class="current"
+                {% endif %}
+            >
+                查询书目
+            </a>
+            <a href={% url 'reader_borrow_list' %}
+                {% if request.path == '/reader/borrow_list' %}
+                    class="current"
+                {% endif %}
+            >
+                借阅记录
+            </a>
+
+            <a href="#">设置</a>
+            <a href="{% url 'entry' %}">退出</a>
+        </div>
+    </div>
+
+    {% block main_content %}
+    {% endblock %}
+{% endblock %}

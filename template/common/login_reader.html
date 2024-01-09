@@ -1,0 +1,9 @@
+{% extends "common/login_base.html" %}
+
+{% block box_title %}
+    亲爱的读者，请先登录
+{% endblock %}
+
+{% block register_url %}
+    {% url 'register_reader' %}
+{% endblock %}

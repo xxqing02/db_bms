@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}
+    图书管理系统——管理员端
+{% endblock %}
+
+{% block content %}
+    <div class="side-nav">
+        <div class="header">
+            <a class="title" href="{% url 'librarian_home' %}">
+                图书管理系统
+            </a>
+            <div class="subtitle">管理员端</div>
+        </div>
+
+        <div class="separator"></div>
+
+        <div class="option">
+            <a href={% url 'librarian_book_list' %}
+                {% if request.path == '/librarian/book_list' %}
+                    class="current"
+                {% endif %}
+            >
+                管理书目
+            </a>
+            <a href="#"
+                {% if request.path == '/librarian/add_book' %}
+                    class="current"
+                {% endif %}
+            >
+                审理借阅
+            </a>
+
+            <a href="#">设置</a>
+            <a href="{% url 'entry' %}">退出</a>
+        </div>
+    </div>
+
+    {% block main_content %}
+    {% endblock %}
+{% endblock %}

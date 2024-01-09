@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% endblock %}
+
+{% block content %}
+<div class="box centered-box register-box">
+    <a class="symbol" href="{% block return_url %}{% endblock %}">&lt;</a>
+    <div class="h-centered-section">
+        <h2>{% block box_title %}{% endblock %}</h2>
+        {% if error %}
+            <p class="error-text">{{ error }}</p>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            <input name="username" placeholder="用户名" required>
+            <input type="password" name="password" placeholder="密码" required>
+            <input type="password" name="password_confirm" placeholder="确认密码" required>
+            <input name="email" placeholder="邮箱" required>
+            <input name="phone" placeholder="手机号" required>
+        </form>
+
+        <button class="button" onclick="document.forms[0].submit()">注册</button>
+    </div>
+</div>
+{% endblock %}
