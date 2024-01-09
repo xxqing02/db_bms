@@ -303,13 +303,13 @@ def return_book(request):
         record.is_return = True
         record.save()
         # 罚金计算公式为：罚金=（归还时间-应还时间）* fine 元/天,不足一天按一天计算
-        due_time = record.due_time.timestamp()
-        now=now_time.timestamp()
-        fine = 2  # 罚金/天
-        if now > due_time:
-            bill = (now - due_time) / (24 * 60 * 60) * fine
-            reader.bill += bill
-            reader.save()
+        # due_time = record.due_time.timestamp()
+        # now=now_time.timestamp()
+        # fine = 2  # 罚金/天
+        # if now > due_time:
+        #     bill = (now - due_time) / (24 * 60 * 60) * fine
+        #     reader.bill += bill
+        #     reader.save()
         # 修改图书状态,系统同时自动查询预约reserve(ISBN)其他读者预约该书(book_id)的记录，
         # 则将该图书的状态修改为“已预约”，并将该图书ID写入相应的预约记录中
         # 系统在清除超出预约期限的记录时解除该图书的“已预约”状态；否则，将该图书的状态修改为“未借出”。
@@ -321,7 +321,7 @@ def return_book(request):
             reserve_book.book_id = book_info
             reserve_book.book_arrive_time = now_time
             reserve_book.save()
-            book_info.state = states[3]
+            book_info.state = states[3] # bug
             book_info.save()
 
             reader_id = int(reserve_book.reader_id.id)
@@ -373,3 +373,35 @@ def bill(request):
     reader = models.reader.objects.filter(id=reader_id).first()
     list = {"reader": reader}
     return render(request, f"{READER_PATH}bill.html", list)
+
+# cron funcyion
+def print_time():
+    print(datetime.now())
+
+def delete_reserve():
+    reserve_list = models.reserve.objects.all()
+    for i in reserve_list:
+        if i.book_arrive_time:
+            if (
+                i.book_arrive_time + timedelta(seconds=i.reserve_days)
+                < datetime.now()
+            ):
+                book_info = models.book_info.objects.filter(
+                    book_id=i.book_id.book_id
+                ).first()
+                book_info.state = "未借出"
+                book_info.save()
+                i.delete()
+
+
+def expire_notice():
+    borrow_list = models.borrow.objects.all()
+    for i in borrow_list:
+        if i.due_time < datetime.now() and not i.is_return:
+            reader_email = models.reader.objects.get(id=i.reader_id.id).email
+            send_mail(
+                subject="书籍归还提醒",
+                message="您好,您借阅的书籍已逾期,请尽快归还并缴纳罚金,谢谢!",
+                from_email="gzy500699@163.com",
+                recipient_list=[reader_email],
+            )
