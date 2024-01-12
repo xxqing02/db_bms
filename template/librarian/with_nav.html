@@ -19,15 +19,13 @@
             <a href={% url 'librarian_book_list' %}
                 {% if request.path == '/librarian/book_list' %}
                     class="current"
-                {% endif %}
-            >
+                {% endif %}>
                 管理书目
             </a>
-            <a href="#"
-                {% if request.path == '/librarian/add_book' %}
+            <a href={% url 'librarian_process' %}
+                {% if request.path == '/librarian/process' %}
                     class="current"
-                {% endif %}
-            >
+                {% endif %}>
                 审理借阅
             </a>
 

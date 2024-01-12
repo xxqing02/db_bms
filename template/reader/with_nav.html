@@ -19,15 +19,13 @@
             <a href={% url 'reader_book_list' %}
                 {% if request.path == '/reader/book_list' %}
                     class="current"
-                {% endif %}
-            >
+                {% endif %}>
                 查询书目
             </a>
             <a href={% url 'reader_borrow_list' %}
                 {% if request.path == '/reader/borrow_list' %}
                     class="current"
-                {% endif %}
-            >
+                {% endif %}>
                 借阅记录
             </a>
 

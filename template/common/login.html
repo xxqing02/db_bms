@@ -5,33 +5,29 @@
 {% endblock %}
 
 {% block content %}
-<div class="box centered-box login-box-width">
-    <a class="return-arrow" href="{% url 'entry' %}">&lt;</a>
-    <div class="h-centered-section">
-        <div class="box-title">
-            {% if user_type == 'reader' %}
-                亲爱的读者，请先登录
-            {% elif user_type == 'librarian' %}
-                管理员您好，请先登录
-            {% endif %}
-        </div>
-
-        {% if error %}
-            <div class="error-text">{{ error }}</div>
-        {% endif %}
-
-        <form method="post">
-            {% csrf_token %}
-            <div class="box-input-group">
-                <input name="username" placeholder="用户名" required>
-                <input type="password" name="password" placeholder="密码" required>
+    <div class="box centered-box login-box-width">
+        <a class="return-arrow" href="{% url 'entry' %}">&lt;</a>
+        <div class="h-centered-section">
+            <div class="box-title">
+                {% if user_type == 'reader' %}
+                    亲爱的读者，请先登录
+                {% elif user_type == 'librarian' %}
+                    管理员您好，请先登录
+                {% endif %}
             </div>
-            <button class="login-register-button-size" type="submit">登录</button>
-        </form>
 
-        <a class="box-link" href="{% url 'register' user_type %}">
-            没有账号？点击注册
-        </a>
+            <form id="login-form">
+                {% csrf_token %}
+                <div class="box-input-group">
+                    <input name="username" placeholder="用户名" required>
+                    <input type="password" name="password" placeholder="密码" required>
+                </div>
+                <button id="login-btn" class="login-register-button-size" user-type="{{ user_type }}">登录</button>
+            </form>
+
+            <a class="box-link" href="{% url 'register' user_type %}">
+                没有账号？点击注册
+            </a>
+        </div>
     </div>
-</div>
 {% endblock %}

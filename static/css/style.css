@@ -9,6 +9,48 @@ body {
     padding: 0;
     display: flex;
     background: linear-gradient(180deg, rgb(219, 227, 236), rgb(179, 200, 216), rgb(118, 155, 185));
+    background-attachment: scroll;
+}
+
+.fade-out {
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.fade-in {
+    opacity: 1;
+    transition: opacity 0.5s ease-in-out;
+}
+
+.message-container {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 22px;
+    font-size: 22px;
+    background-color: rgba(224, 231, 233, 0.795);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.151);
+    border-radius: 10px;
+    text-align: center;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: all 0.3s ease-in-out;
+}
+
+.error {
+    color: #e9e9e9;
+    background-color: rgba(211, 56, 56, 0.795);
+    text-wrap: nowrap;
+}
+
+.success {
+    color: #e9e9e9;
+    background-color: rgba(52, 179, 52, 0.795);
+    text-wrap: nowrap;
 }
 
 /****************************************************/
@@ -99,12 +141,29 @@ body {
 }
 
 .entry .left-text {
-    font-size: 60px;
+    font-size: 70px;
     font-weight: bold;
-    color: #3e4958;
+    color: #3c66a1;
 }
 
-.button-common {
+.float-up {
+    opacity: 0;
+    animation: floatUp 1s ease-in-out forwards;
+}
+
+@keyframes floatUp {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.button-default {
+    width: 150px;
     font-size: 20px;
     color: #f1f1f1;
     background-color: #323d4e;
@@ -118,9 +177,10 @@ body {
     transition: 0.3s;
 }
 
-.button-common:hover {
+.button-default:hover {
     background-color: #3e516d;
 }
+
 
 /****************************************************/
 /*                   MAIN SECTION                   */
@@ -130,18 +190,18 @@ body {
     width: 100%;
     margin-left: var(--nav-width);
     padding: 30px;
+    display: flex;
     flex-direction: column;
 }
 
 .main-section table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 30px;
     transition: 0.3s;
 }
 
 .main-section th {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: bold;
     padding: 12px;
     color: #f1f1f1;
@@ -149,7 +209,7 @@ body {
 }
 
 .main-section td {
-    font-size: 17px;
+    font-size: 16px;
     font-weight: normal;
     text-align: center;
     padding: 12px;
@@ -178,7 +238,7 @@ body {
     color: #3e516d;
 }
 
-.main-section table button {
+/* .main-section table button {
     color: #f1f1f1;
     background-color: #3f7899;
     font-size: 17px;
@@ -194,7 +254,7 @@ body {
 
 .main-section table button:hover {
     background-color: #3e516d;
-}
+} */
 
 .main-section p {
     font-size: 20px;
@@ -341,6 +401,7 @@ body {
     text-align: left;
     padding-left: 30px;
     padding-right: 30px;
+    flex-direction: column;
 }
 
 .book-info-title {
@@ -348,14 +409,35 @@ body {
     font-weight: bolder;
     padding-top: 15px;
     padding-bottom: 15px;
-    color: #1a2630;
+    color: #131313;
 }
 
 .book-info-text {
     font-size: 20px;
     font-weight: bold;
-    padding: 5px;
-    color: #383838;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    color: #2e2e2e;
+}
+
+.book-info-container label {
+    font-size: 20px;
+    font-weight: bold;
+    color: #2e2e2e;
+    display: flex;
+}
+
+.book-info-container input {
+    width: 50%;
+    padding: 10px;
+    margin: 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 18px;
+    font-weight: normal;
+    color: #222222;
+    background-color: #f0f0f0;
+    display: flex;
 }
 
 .search-bar {
@@ -397,9 +479,9 @@ body {
 }
 
 .error-text {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: normal;
-    color: #d10707;
+    color: #da1010;
     padding: 5px;
 }
 
@@ -416,4 +498,106 @@ body {
 
 .return-arrow:hover {
     transform: translateX(-8px);
+}
+
+.centered-modal {
+    width: 320px;
+    background-color: rgba(42, 97, 110, 0.795);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.151);
+    border-radius: 10px;
+    text-align: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 10px;
+    display: flex;
+}
+
+.centered-modal p {
+    color: rgb(228, 228, 228);
+    font-size: 25px;
+    font-weight: bold;
+    text-wrap: nowrap;
+}
+
+.centered-modal button {
+    padding: 10px 20px;
+    color: rgb(219, 219, 219);
+    background-color: rgb(99, 156, 172);
+    border: none;
+    border-radius: 5px;
+    margin: 10px;
+    font-size: 20px;
+    text-decoration: none;
+    text-align: center;
+    text-wrap: nowrap;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.centered-modal button:hover {
+    color: rgb(219, 219, 219);
+    background-color: rgba(116, 190, 211, 0.8);
+}
+
+.centered-modal label {
+    font-size: 20px;
+    font-weight: bold;
+    color: #e2e2e2;
+    display: flex;
+}
+
+.centered-modal input {
+    padding: 10px;
+    margin: 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 18px;
+    font-weight: normal;
+    color: #222222;
+    background-color: #f0f0f0;
+    display: flex;
+}
+
+.centered-modal select {
+    width: 200px;
+    padding: 10px;
+    margin: 15px;
+    border: none;
+    border-radius: 5px;
+    font-size: 18px;
+    font-weight: normal;
+    color: #222222;
+    background-color: #f0f0f0;
+    display: flex;
+}
+
+.centered-modal select option {
+    padding: 10px;
+    font-size: 18px;
+    font-weight: normal;
+    color: #222222;
+    background-color: #f0f0f0;
+    display: flex;
+}
+
+.save-button {
+    width: 100px;
+    padding: 10px 20px;
+    color: rgb(219, 219, 219);
+    background-color: rgb(28, 71, 97);
+    border: none;
+    border-radius: 5px;
+    margin: 10px;
+    font-size: 20px;
+    text-decoration: none;
+    text-align: center;
+    text-wrap: nowrap;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.add-book-modal-width {
+    width: 400px;
 }

@@ -15,11 +15,7 @@
             {% endif %}
         </div>
 
-        {% if error %}
-            <p class="error-text">{{ error }}</p>
-        {% endif %}
-
-        <form method="post">
+        <form id="register-form">
             {% csrf_token %}
             <div class="box-input-group">
                 <input name="username" placeholder="用户名" required>
@@ -28,7 +24,7 @@
                 <input name="email" placeholder="邮箱" required>
                 <input name="phone" placeholder="手机号" required>
             </div>
-            <button class="login-register-button-size" type="submit">注册</button>
+            <button id="register-btn" class="login-register-button-size" type="submit" user-type="{{ user_type }}">注册</button>
         </form>
     </div>
 </div>

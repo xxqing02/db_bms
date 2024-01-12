@@ -4,27 +4,52 @@
     <div class="main-section">
 
     {% if borrow_list %}
-    <table class="table">
-        <tr>
-            <th>ISBN</th>
-            <th>图书编号</th>
-            <th>借阅时间</th>
-            <th>是否归还</th>
-        </tr>
-        {% for copy in borrow_list %}
-        <tr>
-            <td>{{ copy.isbn_id }}</td>
-            <td>{{ copy.id }}</td>
-            <td>{{ copy.borrow_time }}</td>
-            <td>{{ copy.is_return }}</td>
-            {% if not copy.is_return %}
-            <td>
-                <a href="/return_book/?id={{ copy.id }}" role="button">归还</a>
-            </td>
-            {% endif %}
-        </tr>
-        {% endfor %}
-    </table>
+        <p>共 {{ borrow_list|length }} 条借阅记录</p>
+        <table class="table">
+            <tr>
+                <th>书名</th>
+                <th>ISBN</th>
+                <th>书册编号</th>
+                <th>借阅时间</th>
+                <th>应还时间</th>
+                <th>归还时间</th>
+                <th>审核状态</th>
+                <th>账单金额</th>
+                <th>操作</th>
+            </tr>
+            {% for record in borrow_list %}
+                <tr>
+                    <td>{{ record.copy_id.isbn.title }}</td>
+                    <td>{{ record.copy_id.isbn.isbn }}</td>
+                    <td>{{ record.copy_id.copyNO }}</td>
+                    {% if record.start_time %}
+                        <td>{{ record.start_time | date:"Y-m-d H:i:s"}}</td>
+                        <td>{{ record.due_time | date:"Y-m-d H:i:s"}}</td>
+                    {% else %}
+                        <td></td>
+                        <td></td>
+                    {% endif %}
+                    <td>
+                        {% if record.return_time %}
+                            {{ record.return_time | date:"Y-m-d H:i:s"}}
+                        {% else %}
+                            未归还
+                        {% endif %}
+                    </td>
+                    <td>{{ record.get_check_status }}</td>
+                    <td>{{ record.bill }}</td>
+                    <td>
+                    {% if record.start_time and not record.return_time %}
+                        <form id="return-form{{ record.id }}">
+                            {% csrf_token %}
+                            <input type="hidden" name="borrow-id" value="{{ record.id }}">
+                            <a class="return-btn" borrow-id="{{ record.id }}">归还</a>
+                        </form>
+                    {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+        </table>
     {% else %}
         <p>暂无借阅记录<p>
     {% endif %}

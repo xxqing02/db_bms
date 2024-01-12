@@ -7,7 +7,7 @@
             <button type="submit">搜索</button>
         </form>
 
-        <button href="/book/add" class="button-common">+ 书目入库</button>
+        <button id="open-add-book-modal-btn" class="button-default">+ 书目入库</button>
 
         {% if not books %}
             {% if search %}
@@ -42,13 +42,48 @@
                             <td>{{ book.number }}</td>
                             <td>{{ book.operator }}</td>
                             <td>
-                                <a href="{% url 'librarian_edit' book.id %}">编辑</a>
-                                <a href="/book_delete/{{ book.id }}">删除</a>
+                                <a href="{% url 'librarian_book_info' book.id %}">详情</a>
+                                <a class="open-delete-book-modal-btn" book-id="{{ book.id }}">删除</a>
+
+                                <div id="delete-book-modal{{ book.id }}" class="centered-modal" style="display: none;">
+                                    <p>确定要删除吗？</p>
+                                    <form id="delete-book-form{{ book.id }}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="delete-book-id" value="{{ book.id }}">
+                                        <button id="confirm-delete-book-btn{{ book.id }}">删除</button>
+                                        <button id="cancel-delete-book-btn{{ book.id }}">取消</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         {% endif %}
+    </div>
+
+
+    <div id="add-book-modal" class="centered-modal add-book-modal-width" style="display: none;">
+        <p>书目入库</p>
+        <form id="add-book-form">
+            {% csrf_token %}
+            <label>书名：</label>
+            <input type="text" name="title" value="{{ book.title }}" required>
+            
+            <label>作者：</label>
+            <input type="text" name="author" value="{{ book.author }}" required>
+
+            <label>出版社：</label>
+            <input type="text" name="publisher" value="{{ book.publisher }}" required>
+
+            <label>ISBN：</label>
+            <input type="text" name="isbn" value="{{ book.isbn }}" required>
+
+            <label>出版年月：</label>
+            <input type="text" name="date" value="{{ book.date }}" required>
+
+            <button id="confirm-add-book-btn">确定</button>
+            <button id="cancel-add-book-btn">取消</button>
+        </form>
     </div>
 {% endblock %}

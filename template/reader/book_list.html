@@ -24,7 +24,6 @@
                         <th>ISBN</th>
                         <th>出版年月</th>
                         <th>册数</th>
-                        {% comment %} <th>经办人</th> {% endcomment %}
                         <th>操作</th>
                     </tr>
                 </thead>
@@ -38,10 +37,8 @@
                             <td>{{ book.isbn }}</td>
                             <td>{{ book.date }}</td>
                             <td>{{ book.number }}</td>
-                            {% comment %} <td>{{ book.operator }}</td> {% endcomment %}
                             <td>
-                                {% comment %} <a href="/book_info/{{ book.id }}">详情</a> {% endcomment %}
-                                <a href="{% url 'reader_borrow' book.id %}">借阅</a>
+                                <a href="{% url 'reader_book_info' book.id %}">详情</a>
                             </td>
                         </tr>
                     {% endfor %}

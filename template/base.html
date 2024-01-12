@@ -4,18 +4,21 @@
 <html>
 
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
         {% block title %}
         {% endblock %}
     </title>
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script type="text/javascript" src="{% static 'js/script.js' %}"></script>
 </head>
 
 <body>
     {% block content %}
     {% endblock %}
-    <script src="{% static 'js/script.js' %}"></script>
+
+    <div id="error" class="message-container error"></div>
+    <div id="success" class="message-container success"></div>
 </body>
 </html>
