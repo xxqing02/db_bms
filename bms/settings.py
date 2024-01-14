@@ -9,8 +9,9 @@ https://docs.djangoproject.com/en/4.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.1/ref/settings/
 """
-from ruamel.yaml import YAML
 from pathlib import Path
+
+from ruamel.yaml import YAML
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -21,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-x0qtlb+te4aw+a%^*=2f&ej*%fqt!5(g*^^*$%cr6%=lh^du7n"
+SECRET_KEY = "django-insecure-jk1-7^1&@khl9qu^^+1b_f6*z36mj#1aw3p+!arrpp7#df#)0g"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -77,12 +78,11 @@ DEFAULT_CHARSET = "utf-8"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-# CONFIG_FILEPATH = "config.yaml"
-# if not os.path.exists(CONFIG_FILEPATH):
-#     raise Exception("Config file not exists!")
+CONFIG_FILEPATH = "./config.yaml"
+if not os.path.exists(CONFIG_FILEPATH):
+    raise Exception("Config file not exists!")
 
-# config = YAML().load(open(CONFIG_FILEPATH))
-
+config = YAML().load(open(CONFIG_FILEPATH))
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
@@ -117,12 +117,11 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
 
-
-USE_I18N = True
-
 LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "Asia/Shanghai"
+
+# USE_I18N = True
 
 USE_TZ = False
 
@@ -130,14 +129,15 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
-STATIC_URL = "/static/"
-
-# STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
+STATIC_URL = "static/"
+STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
 
 # about email
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
