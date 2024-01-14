@@ -7,43 +7,47 @@
             <button type="submit">搜索</button>
         </form>
 
-        {% if not books %}
-            {% if search %}
-                <p>没有找到相关书目</p>
+        <div class="table-container">
+            {% if not books %}
+                {% if search %}
+                    <p>没有找到相关书目</p>
+                {% else %}
+                    <p>暂无书目</p>
+                {% endif %}
             {% else %}
-                <p>暂无书目</p>
-            {% endif %}
-        {% else %}
-            <p>共 {{ books|length }} 条记录</p>
-            <table>
-                <thead>
-                    <tr>
-                        <th>书名</th>
-                        <th>作者</th>
-                        <th>出版社</th>
-                        <th>ISBN</th>
-                        <th>出版年月</th>
-                        <th>册数</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
+                <p>共 {{ books|length }} 条记录</p>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>书名</th>
+                                <th>作者</th>
+                                <th>出版社</th>
+                                <th>ISBN</th>
+                                <th>出版年月</th>
+                                <th>册数</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
 
-                <tbody>
-                    {% for book in books %}
-                        <tr>
-                            <td>{{ book.title }}</td>
-                            <td>{{ book.author }}</td>
-                            <td>{{ book.publisher }}</td>
-                            <td>{{ book.isbn }}</td>
-                            <td>{{ book.date }}</td>
-                            <td>{{ book.number }}</td>
-                            <td>
-                                <a href="{% url 'reader_book_info' book.id %}">详情</a>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% endif %}
+                        <tbody>
+                            {% for book in books %}
+                                <tr>
+                                    <td>{{ book.title }}</td>
+                                    <td>{{ book.author }}</td>
+                                    <td>{{ book.publisher }}</td>
+                                    <td>{{ book.isbn }}</td>
+                                    <td>{{ book.date }}</td>
+                                    <td>{{ book.number }}</td>
+                                    <td>
+                                        <a href="{% url 'reader_book_info' book.id %}">详情</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
     </div>
 {% endblock %}

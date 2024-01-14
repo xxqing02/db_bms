@@ -13,34 +13,31 @@
             <div class="book-info-text">册数：{{ book.number }}</div>
         </div>
 
-        <table class="table">
-            <tr>
-                <th>书册编号</th>
-                <th>位置</th>
-                <th>借阅状态</th>
-                <th>操作</th>
-            </tr>
-            {% for copy in copies %}
+        <div class="table-container h-centered-section">
+            <table>
                 <tr>
-                    <td>{{ copy.copyNO }}</td>
-                    <td>{{ copy.get_position_display }}</td>
-                    <td>{{ copy.get_state_display }}</td>
-                    <td>
-                        {% if copy.get_state_display == "未借出" %}
-                            <form id="borrow-form{{ copy.id }}">
-                                {% csrf_token %}
-                                <input type="hidden" name="book-id" value="{{ book.id }}">
-                                <input type="hidden" name="copy-id" value="{{ copy.id }}">
-                                <a class="borrow-btn" copy-id="{{ copy.id }}">借阅</a>
-                            </form>
-                        {% elif copy.get_state_display == "已借出" %}
-                            <a class="reserve-btn">预约</a>
-                        {% else %}
-                            不可借阅
-                        {% endif %}
-                    </td>
+                    <th>书册编号</th>
+                    <th>位置</th>
+                    <th>借阅状态</th>
                 </tr>
-            {% endfor %}
-        </table>
+                {% for copy in copies %}
+                    <tr>
+                        <td>{{ copy.copyNO }}</td>
+                        <td>{{ copy.get_position_display }}</td>
+                        <td>{{ copy.get_state_display }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <div class="h-centered-section">
+            {% if reserve %}
+                <form id="reserve-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="book-id" value="{{ book.id }}">
+                    <button id="reserve-btn" class="button-default">预约</button>
+                </form>
+            {% endif %}
+        </div>
     </div>
 {% endblock %}

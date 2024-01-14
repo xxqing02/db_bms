@@ -84,17 +84,13 @@ class BorrowRecord(models.Model):
     id = models.AutoField(verbose_name='借阅记录编号', primary_key=True, unique=True)
     reader_id = models.ForeignKey(verbose_name='读者编号', to=Reader, to_field='id', on_delete=models.CASCADE)
     copy_id = models.ForeignKey(to=BookCopy, to_field='id', on_delete=models.CASCADE)
-    start_time = models.DateTimeField(verbose_name='借阅时间', null=True, blank=True, default=None)
-    due_time = models.DateTimeField(verbose_name='应还时间', null=True, blank=True, default=None)
+    start_time = models.DateTimeField(verbose_name='借阅时间')
+    due_time = models.DateTimeField(verbose_name='应还时间')
     return_time = models.DateTimeField(verbose_name='归还时间', null=True, blank=True, default=None)
-    is_checked = models.BooleanField(verbose_name='是否审核', default=False)
-    bill = models.IntegerField(verbose_name='账单金额', null=False, default=0)
+    fine = models.IntegerField(verbose_name='账单金额', null=False, default=0)
 
     def __str__(self):
         return self.id
-    
-    def get_check_status(self):
-        return '已审核' if self.is_checked else '未审核'
     
     class Meta:
         db_table = 'borrow_records'
@@ -105,14 +101,14 @@ class BorrowRecord(models.Model):
 class ReserveRecord(models.Model):
     id = models.AutoField(verbose_name='预约记录编号', primary_key=True, unique=True)
     reader_id = models.ForeignKey(verbose_name='读者编号', to=Reader, to_field='id', on_delete=models.CASCADE)
-    copy_id = models.ForeignKey(verbose_name='书册编号', to=BookCopy, to_field='id', on_delete=models.CASCADE)
     isbn = models.ForeignKey(verbose_name='ISBN', to=Book, to_field='isbn', on_delete=models.CASCADE)
-    reserve_time = models.DateTimeField(verbose_name='预约时间', null=True, default=time.localtime())
-    reserve_days = models.PositiveIntegerField(verbose_name='预约有效天数', default=10)
-    book_arrive_time = models.DateTimeField(verbose_name='图书到达时间', null=True, default=None)
+    reserve_time = models.DateTimeField(verbose_name='预约时间', null=True)
+    available_days = models.PositiveIntegerField(verbose_name='预约有效天数', default=10)
+    copy_id = models.ForeignKey(verbose_name='书册编号', to=BookCopy, to_field='id', on_delete=models.CASCADE, null=True)
+    arrive_time = models.DateTimeField(verbose_name='到书时间', null=True)
 
     def __str__(self):
-        return f"{self.reader_id} {self.book_info_id}"
+        return f"{self.reader_id} {self.isbn}"
     
     class Meta:
         db_table = 'reserve_records'

@@ -1,0 +1,43 @@
+{% extends "librarian/with_nav.html" %}
+
+{% block main_content %}
+    <div class="main-section">
+        {% if reserve_records %}
+            <p>预约记录（共 {{ reserve_records|length }} 条）</p>
+            <div class="table-container">
+                <table>
+                    <tr>
+                        <th>借阅人</th>
+                        <th>书名</th>
+                        <th>ISBN</th>
+                        <th>预约时间</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                    {% for record in reserve_records %}
+                        <tr>
+                            <td>{{ record.reader_id.username }}</td>
+                            <td>{{ record.isbn.title }}</td>
+                            <td>{{ record.isbn.isbn }}</td>
+                            <td>{{ record.reserve_time }}</td>
+                            {% if record.copy_id %}
+                                <td>可领取</td>
+                                <td>
+                                    <form id="take-reserved-book-form{{ record.id }}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="reserve-id" value="{{ record.id }}">
+                                        <a class="take-reserved-book-btn" reserve-id="{{ record.id }}">领取</a>
+                                    </form>
+                                </td>
+                            {% else %}
+                                <td>暂无可借</td>
+                                <td></td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        {% else %}
+            <p>暂无预约记录</p>
+        {% endif %}
+{% endblock %}

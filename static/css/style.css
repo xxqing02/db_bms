@@ -12,14 +12,20 @@ body {
     background-attachment: scroll;
 }
 
-.fade-out {
+.float-up {
     opacity: 0;
-    transition: opacity 0.5s ease-in-out;
+    animation: floatUp 1s ease-in-out forwards;
 }
 
-.fade-in {
-    opacity: 1;
-    transition: opacity 0.5s ease-in-out;
+@keyframes floatUp {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .message-container {
@@ -146,21 +152,6 @@ body {
     color: #3c66a1;
 }
 
-.float-up {
-    opacity: 0;
-    animation: floatUp 1s ease-in-out forwards;
-}
-
-@keyframes floatUp {
-    0% {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
 
 .button-default {
     width: 150px;
@@ -194,67 +185,56 @@ body {
     flex-direction: column;
 }
 
-.main-section table {
+.table-container {
+    display: flex;
+    flex-direction: column;
+    margin-top: 12px;
+    margin-bottom: 12px;
+}
+
+.table-container table {
     width: 100%;
     border-collapse: collapse;
     transition: 0.3s;
 }
 
-.main-section th {
+.table-container th {
     font-size: 18px;
     font-weight: bold;
     padding: 12px;
     color: #f1f1f1;
-    background-color: #516175;
+    background-color: #516177;
 }
 
-.main-section td {
+.table-container td {
     font-size: 16px;
     font-weight: normal;
     text-align: center;
     padding: 12px;
 }
 
-.main-section tr {
+.table-container tr {
     background-color: #eeeeee;
 }
 
-.main-section tr:nth-child(even) {
+.table-container tr:nth-child(even) {
     background-color: #e0e7e9;
 }
 
-.main-section tr:hover {
+.table-container tr:hover {
     background-color: #afd7e9;
 }
 
-.main-section table a {
+.table-container table a {
     color: #3161aa;
     text-decoration: none;
     cursor: pointer;
     transition: 0.3s;
 }
 
-.main-section table a:hover {
+.table-container table a:hover {
     color: #3e516d;
 }
-
-/* .main-section table button {
-    color: #f1f1f1;
-    background-color: #3f7899;
-    font-size: 17px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: 0.3s;
-    padding-left: 10px;
-    padding-right: 10px;
-    padding-top: 5px;
-    padding-bottom: 5px;
-}
-
-.main-section table button:hover {
-    background-color: #3e516d;
-} */
 
 .main-section p {
     font-size: 20px;
@@ -413,11 +393,11 @@ body {
 }
 
 .book-info-text {
+    color: #2e2e2e;
     font-size: 20px;
     font-weight: bold;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    color: #2e2e2e;
+    padding-top: 5px;
+    padding-bottom: 5px;
 }
 
 .book-info-container label {
@@ -425,6 +405,11 @@ body {
     font-weight: bold;
     color: #2e2e2e;
     display: flex;
+}
+
+.book-info-btn-container {
+    padding-top: 20px;
+    padding-bottom: 20px;
 }
 
 .book-info-container input {

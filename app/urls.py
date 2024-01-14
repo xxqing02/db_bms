@@ -12,10 +12,10 @@ urlpatterns = [
     path('reader/home', view=views.ReaderHome.as_view(), name='reader_home'),
     path('reader/book_list', view=views.ReaderBookList.as_view(), name='reader_book_list'),
     path('reader/book_info/<int:book_id>', view=views.ReaderBookInfo.as_view(), name='reader_book_info'),
-    path('reader/borrow', view=views.ReaderBorrow.as_view(), name='reader_borrow'),
     path('reader/reserve', view=views.ReaderReserve.as_view(), name='reader_reserve'),
-    path('reader/return', view=views.ReaderReturn.as_view(), name='reader_return'),
     path('reader/borrow_list', view=views.ReaderBorrowList.as_view(), name='reader_borrow_list'),
+    path('reader/reserve_list', view=views.ReaderReserveList.as_view(), name='reader_reserve_list'),
+    path('reader/cancel_reservation', view=views.ReaderCancelReservation.as_view(), name='reader_cancel_reservation'),
 
     # Librarian
     path('librarian/home', view=views.LibrarianHome.as_view(), name='librarian_home'),
@@ -27,8 +27,9 @@ urlpatterns = [
     path('librarian/add_copy', view=views.LibrarianAddCopy.as_view(), name='librarian_add_copy'),
     path('librarian/edit_copy', view=views.LibrarianEditCopy.as_view(), name='librarian_edit_copy'),
     path('librarian/delete_copy', view=views.LibrarianDeleteCopy.as_view(), name='librarian_delete_copy'),
-    path('librarian/process', view=views.LibrarianProcess.as_view(), name='librarian_process'),
-
-    path('librarian/approve_borrow', view=views.LibrarianApproveBorrow.as_view(), name='librarian_approve_borrow'),
-    path('librarian/refuse_borrow', view=views.LibrarianRefuseBorrow.as_view(), name='librarian_refuse_borrow'),
+    path('librarian/borrow_list', view=views.LibrarianBorrowList.as_view(), name='librarian_borrow_list'),
+    path('librarian/borrow', view=views.LibrarianBorrow.as_view(), name='librarian_borrow'),
+    path('librarian/return', view=views.LibrarianReturn.as_view(), name='librarian_return'),
+    path('librarian/reserve_list', view=views.LibrarianReserveList.as_view(), name='librarian_reserve_list'),
+    path('librarian/take_reserved_book', view=views.LibrarianTakeReservedBook.as_view(), name='librarian_take_reserved_book'),
 ]

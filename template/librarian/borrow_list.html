@@ -1,4 +1,4 @@
-{% extends "reader/with_nav.html" %}
+{% extends "librarian/with_nav.html" %}
 
 {% block main_content %}
     <div class="main-section">
@@ -7,25 +7,31 @@
             <div class="table-container">
                 <table>
                     <tr>
-                        <th>书名</th>
+                        <th>借阅人</th>
                         <th>ISBN</th>
                         <th>书册编号</th>
                         <th>借阅时间</th>
                         <th>应还时间</th>
                         <th>操作</th>
                     </tr>
-                    {% for record in active_records %}
+                    <tr>
+                        {% for record in active_records %}
                         <tr>
-                            <td>{{ record.copy_id.isbn.title }}</td>
+                            <td>{{ record.reader_id.username }}</td>
                             <td>{{ record.copy_id.isbn.isbn }}</td>
                             <td>{{ record.copy_id.copyNO }}</td>
-                            <td>{{ record.start_time | date:"Y-m-d H:i:s"}}</td>
-                            <td>{{ record.due_time | date:"Y-m-d H:i:s"}}</td>
+                            <td>{{ record.start_time |date:"Y-m-d H:i:s" }}</td>
+                            <td>{{ record.due_time |date:"Y-m-d H:i:s" }}</td>
                             <td>
-                                <a>续借</a>
+                                <form id="return-form{{ record.id }}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="borrow-id" value="{{ record.id }}">
+                                    <a class="return-btn" borrow-id="{{ record.id }}">归还</a>
+                                </form>
                             </td>
                         </tr>
-                    {% endfor %}
+                        {% endfor %}
+                    </tr>
                 </table>
             </div>
         {% endif %}
@@ -35,25 +41,25 @@
             <div class="table-container">
                 <table>
                     <tr>
-                        <th>书名</th>
+                        <th>借阅人</th>
                         <th>ISBN</th>
                         <th>书册编号</th>
                         <th>借阅时间</th>
                         <th>应还时间</th>
                         <th>归还时间</th>
-                        <th>罚金</th>
                     </tr>
-                    {% for record in history_records %}
+                    <tr>
+                        {% for record in history_records %}
                         <tr>
-                            <td>{{ record.copy_id.isbn.title }}</td>
+                            <td>{{ record.reader_id.username }}</td>
                             <td>{{ record.copy_id.isbn.isbn }}</td>
                             <td>{{ record.copy_id.copyNO }}</td>
-                            <td>{{ record.start_time | date:"Y-m-d H:i:s"}}</td>
-                            <td>{{ record.due_time | date:"Y-m-d H:i:s"}}</td>
-                            <td>{{ record.return_time | date:"Y-m-d H:i:s"}}</td>
-                            <td>{{ record.fine }}</td>
+                            <td>{{ record.start_time |date:"Y-m-d H:i:s" }}</td>
+                            <td>{{ record.due_time |date:"Y-m-d H:i:s" }}</td>
+                            <td>{{ record.return_time |date:"Y-m-d H:i:s" }}</td>
                         </tr>
-                    {% endfor %}
+                        {% endfor %}
+                    </tr>
                 </table>
             </div>
         {% endif %}
@@ -61,4 +67,5 @@
         {% if not active_records and not history_records %}
             <p>暂无借阅记录</p>
         {% endif %}
+    </div>
 {% endblock %}

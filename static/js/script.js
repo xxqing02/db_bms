@@ -45,11 +45,12 @@ document.addEventListener("DOMContentLoaded", function() {
     deleteCopy(); // 删除书册
     addCopy(); // 添加书册
 
-    approveBorrow(); // 批准借书
-    refuseBorrow(); // 拒绝借书
-
     borrowBook(); // 借书
     returnBook(); // 还书
+    takeReservedBook(); // 领取预约书籍
+
+    reserveBook(); // 预约
+    cancelReservation(); // 取消预约
 });
 
 function login() {
@@ -139,7 +140,7 @@ function addBook() {
 
     openModalBtn.addEventListener('click', () => showModal(modal));
     cancelBtn.addEventListener('click', () => hideModal(modal));
-    confirmBtn.addEventListener('click', () => handleAddBook(modal));
+    confirmBtn.addEventListener('click', () => handleAddBook());
     form.addEventListener('submit', function(event) { event.preventDefault(); });
 
     function handleAddBook() {
@@ -183,7 +184,7 @@ function deleteBook() {
 
             showModal(modal);
 
-            confirmBtn.addEventListener('click', () => handleDeleteBook(modal));
+            confirmBtn.addEventListener('click', () => handleDeleteBook());
             cancelBtn.addEventListener('click', () => hideModal(modal));
 
             function handleDeleteBook() {
@@ -226,7 +227,7 @@ function editBook() {
 
     openModalBtn.addEventListener('click', () => showModal(modal));
     cancelBtn.addEventListener('click', () => hideModal(modal));
-    confirmBtn.addEventListener('click', () => handleEditBook(modal));
+    confirmBtn.addEventListener('click', () => handleEditBook());
 
     function handleEditBook() {
         fetch('/librarian/edit_book', {
@@ -252,6 +253,52 @@ function editBook() {
     }
 }
 
+function borrowBook() {
+    const openModalBtns = document.querySelectorAll('.open-borrow-modal-btn');
+    if (openModalBtns === null) {
+        return;
+    }
+
+    openModalBtns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const copyId = btn.getAttribute('copy-id');
+            const modal = document.getElementById('borrow-modal' + copyId);
+            const confirmBtn = document.getElementById('confirm-borrow-btn' + copyId);
+            const cancelBtn = document.getElementById('cancel-borrow-btn' + copyId);
+            const form = document.getElementById('borrow-form' + copyId);
+            form.addEventListener('submit', function(event) { event.preventDefault(); });
+
+            showModal(modal);
+
+            cancelBtn.addEventListener('click', () => hideModal(modal));
+            confirmBtn.addEventListener('click', () => handleBorrow());
+
+            function handleBorrow() {
+                fetch('/librarian/borrow', {
+                    method: 'POST',
+                    body: new FormData(form),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    if (data.status === 'success') {
+                        showSuccessMessage(data.message);
+                        hideModal(modal);
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2200);
+                    } else if (data.status === 'error') {
+                        showErrorMessage(data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('发生错误:', error);
+                });
+            }
+        });
+    });
+}
+
 function editCopy() {
     const openModalBtns = document.querySelectorAll('.open-edit-copy-modal-btn');
     if (openModalBtns === null) {
@@ -271,7 +318,7 @@ function editCopy() {
 
             showModal(modal);
 
-            confirmBtn.addEventListener('click', () => handleEditCopy(modal));
+            confirmBtn.addEventListener('click', () => handleEditCopy());
             cancelBtn.addEventListener('click', () => hideModal(modal));
 
             function handleEditCopy() {
@@ -317,7 +364,7 @@ function deleteCopy() {
 
             showModal(modal);
 
-            confirmBtn.addEventListener('click', () => handleDeleteCopy(modal));
+            confirmBtn.addEventListener('click', () => handleDeleteCopy());
             cancelBtn.addEventListener('click', () => hideModal(modal));
 
             function handleDeleteCopy() {
@@ -360,7 +407,7 @@ function addCopy() {
 
     openModalBtn.addEventListener('click', () => showModal(modal));
     cancelBtn.addEventListener('click', () => hideModal(modal));
-    confirmBtn.addEventListener('click', () => handleAddCopy(modal));
+    confirmBtn.addEventListener('click', () => handleAddCopy());
 
     function handleAddCopy() {
         fetch('/librarian/add_copy', {
@@ -386,109 +433,6 @@ function addCopy() {
     }
 }
 
-function approveBorrow() {
-    const approveBtns = document.querySelectorAll('.approve-borrow-btn');
-    if (approveBtns === null) {
-        return;
-    }
-
-    approveBtns.forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            const borrowId = btn.getAttribute('borrow-id');
-            const form = document.getElementById('approve-borrow-form' + borrowId);
-            form.addEventListener('submit', function(event) { event.preventDefault(); });
-
-            fetch('/librarian/approve_borrow', {
-                method: 'POST',
-                body: new FormData(form),
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                if (data.status === 'success') {
-                    window.location.reload();
-                } else if (data.status === 'error') {
-                    showErrorMessage(data.error);
-                }
-            })
-            .catch(error => {
-                console.error('发生错误:', error);
-            });
-        });
-    });
-}
-
-function refuseBorrow() {
-    const refuseBtns = document.querySelectorAll('.refuse-borrow-btn');
-    if (refuseBtns === null) {
-        return;
-    }
-
-    refuseBtns.forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            const borrowId = btn.getAttribute('borrow-id');
-            const form = document.getElementById('refuse-borrow-form' + borrowId);
-            form.addEventListener('submit', function(event) { event.preventDefault(); });
-
-            fetch('/librarian/refuse_borrow', {
-                method: 'POST',
-                body: new FormData(form),
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                if (data.status === 'success') {
-                    window.location.reload();
-                } else if (data.status === 'error') {
-                    showErrorMessage(data.error);
-                }
-            })
-            .catch(error => {
-                console.error('发生错误:', error);
-            });
-        });
-    });
-}
-
-//////////////////////////////////////////////////////////////////////////
-// 读者
-//////////////////////////////////////////////////////////////////////////
-
-function borrowBook() {
-    const borrowBtns = document.querySelectorAll('.borrow-btn');
-    if (borrowBtns === null) {
-        return;
-    }
-
-    borrowBtns.forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            const copyId = btn.getAttribute('copy-id');
-            const form = document.getElementById('borrow-form' + copyId);
-            form.addEventListener('submit', function(event) { event.preventDefault(); });
-
-            fetch('/reader/borrow', {
-                method: 'POST',
-                body: new FormData(form),
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                if (data.status === 'success') {
-                    showSuccessMessage(data.message);
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 2200);
-                } else if (data.status === 'error') {
-                    showErrorMessage(data.error);
-                }
-            })
-            .catch(error => {
-                console.error('发生错误:', error);
-            });
-        });
-    });
-}
-
 function returnBook() {
     const returnBtns = document.querySelectorAll('.return-btn');
     if (returnBtns === null) {
@@ -501,7 +445,7 @@ function returnBook() {
             const form = document.getElementById('return-form' + borrowId);
             form.addEventListener('submit', function(event) { event.preventDefault(); });
 
-            fetch('/reader/return', {
+            fetch('/librarian/return', {
                 method: 'POST',
                 body: new FormData(form),
             })
@@ -520,6 +464,125 @@ function returnBook() {
             .catch(error => {
                 console.error('发生错误:', error);
             });
+        });
+    })
+}
+
+function takeReservedBook() {
+    const takeBtns = document.querySelectorAll('.take-reserved-book-btn');
+    if (takeBtns === null) {
+        return;
+    }
+
+    takeBtns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const reserveId = btn.getAttribute('reserve-id');
+            const form = document.getElementById('take-reserved-book-form' + reserveId);
+            form.addEventListener('submit', function(event) { event.preventDefault(); });
+
+            fetch('/librarian/take_reserved_book', {
+                method: 'POST',
+                body: new FormData(form),
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.status === 'success') {
+                    showSuccessMessage(data.message);
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2200);
+                } else if (data.status === 'error') {
+                    showErrorMessage(data.error);
+                }
+            })
+            .catch(error => {
+                console.error('发生错误:', error);
+            });
+        });
+    })
+}
+
+//////////////////////////////////////////////////////////////////////////
+// 读者
+//////////////////////////////////////////////////////////////////////////
+
+function reserveBook() {
+    const reserveBtn = document.getElementById('reserve-btn');
+    if (reserveBtn === null) {
+        return;
+    }
+
+    const form = document.getElementById('reserve-form');
+    form.addEventListener('submit', function(event) { event.preventDefault(); });
+
+    reserveBtn.addEventListener('click', () => handleReservation());
+
+    function handleReservation() {
+        fetch('/reader/reserve', {
+            method: 'POST',
+            body: new FormData(form),
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            if (data.status === 'success') {
+                showSuccessMessage(data.message);
+                setTimeout(() => {
+                    window.location.reload();
+                }, 2200);
+            } else if (data.status === 'error') {
+                showErrorMessage(data.error);
+            }
+        })
+        .catch(error => {
+            console.error('发生错误:', error);
+        });
+    }
+}
+
+function cancelReservation() {
+    const openModalBtns = document.querySelectorAll('.open-cancel-reserve-modal-btn');
+    if (openModalBtns === null) {
+        return;
+    }
+
+    openModalBtns.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const reserveId = btn.getAttribute('record-id');
+            const modal = document.getElementById('cancel-reserve-modal' + reserveId);
+            const confirmBtn = document.getElementById('confirm-cancel-reserve-btn' + reserveId);
+            const cancelBtn = document.getElementById('cancel-cancel-reserve-btn' + reserveId);
+            const form = document.getElementById('cancel-reserve-form' + reserveId);
+            form.addEventListener('submit', function(event) { event.preventDefault(); });
+
+            showModal(modal);
+
+            confirmBtn.addEventListener('click', () => handleCancelReservation());
+            cancelBtn.addEventListener('click', () => hideModal(modal));
+
+            function handleCancelReservation() {
+                fetch('/reader/cancel_reservation', {
+                    method: 'POST',
+                    body: new FormData(form),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    if (data.status === 'success') {
+                        showSuccessMessage(data.message);
+                        hideModal(modal);
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2200);
+                    } else if (data.status === 'error') {
+                        showErrorMessage(data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('发生错误:', error);
+                });
+            }
         });
     });
 }

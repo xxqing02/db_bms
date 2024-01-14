@@ -11,54 +11,56 @@
 
         {% if not books %}
             {% if search %}
-                <p class="bold-text">没有找到相关书目</p>
+                <p>没有找到相关书目</p>
             {% else %}
-                <p class="bold-text">暂无书目</p>
+                <p>暂无书目</p>
             {% endif %}
         {% else %}
-            <p class="bold-text">共 {{ books|length }} 条记录</p>
-            <table class="table-style">
-                <thead>
-                    <tr>
-                        <th>书名</th>
-                        <th>作者</th>
-                        <th>出版社</th>
-                        <th>ISBN</th>
-                        <th>出版年月</th>
-                        <th>数量</th>
-                        <th>经办人</th>
-                        <th>操作</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {% for book in books %}
+            <p>共 {{ books|length }} 条记录</p>
+            <div class="table-container">
+                <table>
+                    <thead>
                         <tr>
-                            <td>{{ book.title }}</td>
-                            <td>{{ book.author }}</td>
-                            <td>{{ book.publisher }}</td>
-                            <td>{{ book.isbn }}</td>
-                            <td>{{ book.date }}</td>
-                            <td>{{ book.number }}</td>
-                            <td>{{ book.operator }}</td>
-                            <td>
-                                <a href="{% url 'librarian_book_info' book.id %}">详情</a>
-                                <a class="open-delete-book-modal-btn" book-id="{{ book.id }}">删除</a>
-
-                                <div id="delete-book-modal{{ book.id }}" class="centered-modal" style="display: none;">
-                                    <p>确定要删除吗？</p>
-                                    <form id="delete-book-form{{ book.id }}">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="delete-book-id" value="{{ book.id }}">
-                                        <button id="confirm-delete-book-btn{{ book.id }}">删除</button>
-                                        <button id="cancel-delete-book-btn{{ book.id }}">取消</button>
-                                    </form>
-                                </div>
-                            </td>
+                            <th>书名</th>
+                            <th>作者</th>
+                            <th>出版社</th>
+                            <th>ISBN</th>
+                            <th>出版年月</th>
+                            <th>数量</th>
+                            <th>经办人</th>
+                            <th>操作</th>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+
+                    <tbody>
+                        {% for book in books %}
+                            <tr>
+                                <td>{{ book.title }}</td>
+                                <td>{{ book.author }}</td>
+                                <td>{{ book.publisher }}</td>
+                                <td>{{ book.isbn }}</td>
+                                <td>{{ book.date }}</td>
+                                <td>{{ book.number }}</td>
+                                <td>{{ book.operator }}</td>
+                                <td>
+                                    <a href="{% url 'librarian_book_info' book.id %}">详情</a>
+                                    <a class="open-delete-book-modal-btn" book-id="{{ book.id }}">删除</a>
+
+                                    <div id="delete-book-modal{{ book.id }}" class="centered-modal" style="display: none;">
+                                        <p>确定要删除吗？</p>
+                                        <form id="delete-book-form{{ book.id }}">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="delete-book-id" value="{{ book.id }}">
+                                            <button id="confirm-delete-book-btn{{ book.id }}">删除</button>
+                                            <button id="cancel-delete-book-btn{{ book.id }}">取消</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         {% endif %}
     </div>
 

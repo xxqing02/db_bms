@@ -154,13 +154,12 @@ class ReaderBookList(View):
     def get(self, request):
         context = dict()
         search = request.GET.get('search')
+        books = models.Book.objects.filter(number__gt=0)  # 有库存的书籍
         if search:
-            books = models.Book.objects.filter(isbn__icontains=search)| \
-                    models.Book.objects.filter(title__icontains=search) | \
-                    models.Book.objects.filter(author__icontains=search)
+            books = books.filter(isbn__icontains=search) | \
+                    books.filter(title__icontains=search) | \
+                    books.filter(author__icontains=search)
             context['search'] = search
-        else:
-            books = models.Book.objects.all()
 
         context['books'] = books
         return render(request, 'reader/book_list.html', context)
@@ -168,114 +167,58 @@ class ReaderBookList(View):
 
 class ReaderBookInfo(View):
     def get(self, request, book_id):
-        book = models.Book.objects.filter(id=book_id).first()
+        book = models.Book.objects.filter(id=book_id, number__gt=0).first()
+        if not book:
+            return redirect(reverse('reader_book_list'))
+
         copies = models.BookCopy.objects.filter(isbn=book).all()
         context = {
             'copies': copies,
             'book': book,
         }
+        # 若不存在未借出的书籍，则提供预约功能
+        if not copies.filter(state=1).exists():
+            context['reserve'] = True
         return render(request, 'reader/book_info.html', context)
-
-class ReaderBorrow(View):
+        
+class ReaderReserve(View):
     @method_decorator(require_POST)
     def post(self, request):
         reader_id = request.session.get('reader_id')
         book_id = request.POST.get('book-id')
-        copy_id = request.POST.get('copy-id')
-        copy = models.BookCopy.objects.filter(id=copy_id).first()
 
-        active_records = models.BorrowRecord.objects.filter(reader_id=reader_id, return_time=None)
-        if active_records.filter(copy_id__isbn__id=book_id).exists():
+        active_borrow_records = models.BorrowRecord.objects.filter(reader_id=reader_id, return_time=None)
+        if active_borrow_records.filter(copy_id__isbn__id=book_id).exists():
             return JsonResponse({
                 'status': 'error',
-                'error': '您已借阅该书籍！',
+                'error': '您已借阅该书目！',
             })
-        elif active_records.filter(due_time__lt=datetime.now()).exists():
+
+        reserve_records = models.ReserveRecord.objects.filter(reader_id=reader_id).all()
+        if reserve_records.filter(isbn__id=book_id).exists():
             return JsonResponse({
                 'status': 'error',
-                'error': '您有超时未还的书籍，无法借阅！',
-            })
-        else:
-            models.BorrowRecord.objects.create(
-                reader_id=models.Reader.objects.filter(id=reader_id).first(),
-                copy_id=models.BookCopy.objects.filter(id=copy_id).first(),
-            )
-            copy.save()
+                'error': '您已预约该书目！',
+            })        
+
+        if active_borrow_records.filter(due_time__lt=datetime.now()).exists():
             return JsonResponse({
-                'status': 'success',
-                'message': '借阅成功！',
+                'status': 'error',
+                'error': '您有超时未还的书籍，无法预约！',
             })
-        
-# class ReaderReserve(View):
-#     @method_decorator(require_POST)
-#     def post(self, request):
-#         reader_id = request.session.get('reader_id')
-#         book_id = request.POST.get('book-id')
-#         copy_id = request.POST.get('copy-id')
-#         copy = models.BookCopy.objects.filter(id=copy_id).first()
 
-#         active_records = models.ReserveRecord.objects.filter(reader_id=reader_id, return_time=None)
-#         if active_records.filter(copy_id__isbn__id=book_id).exists():
-#             return JsonResponse({
-#                 'status': 'error',
-#                 'error': '您已借阅该书籍！',
-#             })
-#         elif active_records.filter(due_time__lt=datetime.now()).exists():
-#             return JsonResponse({
-#                 'status': 'error',
-#                 'error': '您有超时未还的书籍，无法预约！',
-#             })
-#         else:
-#             start_time = datetime.now()
-#             duration = timedelta(seconds=10)
-#             due_time = start_time + duration
-#             models.ReserveRecord.objects.create(
-#                 reader_id=models.Reader.objects.filter(id=reader_id).first(),
-#                 copy_id=models.BookCopy.objects.filter(id=copy_id).first(),
-#                 start_time=start_time.strftime("%Y-%m-%d %H:%M:%S"),
-#                 due_time=due_time.strftime("%Y-%m-%d %H:%M:%S"),
-#             )
-#             copy.state = 4
-#             copy.save()
-#             return JsonResponse({
-#                 'status': 'success',
-#                 'message': '预约成功！',
-#             })
+        if active_borrow_records.count() >= 10:  # 最多借阅10本书
+            return JsonResponse({
+                'status': 'error',
+                'error': '您的借阅书籍数量已达上限！',
+            })
 
-class ReaderReturn(View):
-    @method_decorator(require_POST)
-    def post(self, request):
-        borrow_id = request.POST.get('borrow-id')
-        return_time = datetime.now()
-
-        record = models.BorrowRecord.objects.filter(id=borrow_id).first()
-        record.return_time = return_time.strftime("%Y-%m-%d %H:%M:%S")
-
-        copy = models.BookCopy.objects.filter(id=record.copy_id.id).first()
-        copy.state = 1
-        copy.save()
-
-        if return_time.timestamp() > record.due_time.timestamp():
-            # 罚金计算公式为：罚金 =（归还时间-应还时间）* fine 元/天,不足一天按一天计算
-            fine = 2  # 罚金：元/天
-            bill = (return_time.timestamp() - record.due_time.timestamp()) * fine
-            print(bill)
-            record.bill = bill
-
-        record.save()
-        return JsonResponse({
-            'status': 'success',
-            'message': '归还成功！',
-        })
-
-class ReaderReserve(View):
-    @method_decorator(require_POST)
-    def post(self, request):
-        """
-        可预约书籍符合:
-          1. 已借出
-          2. 借阅人不是当前用户
-        """
+        reserve_time = datetime.now()
+        models.ReserveRecord.objects.create(
+            reader_id=models.Reader.objects.filter(id=reader_id).first(),
+            isbn=models.Book.objects.filter(id=book_id).first(),
+            reserve_time=reserve_time.strftime("%Y-%m-%d %H:%M:%S"),
+        )
         return JsonResponse({
             'status': 'success',
             'message': '预约成功！',
@@ -285,7 +228,34 @@ class ReaderBorrowList(View):
     def get(self, request):
         reader_id = request.session.get('reader_id')
         records = models.BorrowRecord.objects.filter(reader_id=reader_id).all()
-        return render(request, 'reader/borrow_list.html', {'borrow_list': records})
+        active_records = records.filter(return_time__isnull=True)
+        history_records = records.filter(return_time__isnull=False)
+        context = {
+            'active_records': active_records,
+            'history_records': history_records,
+        }
+        return render(request, 'reader/borrow_list.html', context)
+
+class ReaderReserveList(View):
+    def get(self, request):
+        reader_id = request.session.get('reader_id')
+        records = models.ReserveRecord.objects.filter(reader_id=reader_id).all()
+        context = {
+            'reserve_records': records,
+        }
+        return render(request, 'reader/reserve_list.html', context)
+
+class ReaderCancelReservation(View):
+    @method_decorator(require_POST)
+    def post(self, request):
+        reserve_id = request.POST.get('reserve-id')
+        reserve_record = models.ReserveRecord.objects.filter(id=reserve_id)
+        reserve_record.delete()
+
+        return JsonResponse({
+            'status': 'success',
+            'message': '已取消预约！',
+        })
 
 ##################################################################################
 # Librarian
@@ -440,6 +410,72 @@ class LibrarianAddCopy(View):
                 'message': '添加成功！',
             })
 
+class LibrarianBorrow(View):
+    @method_decorator(require_POST)
+    def post(self, request):
+        reader_name = request.POST.get('reader')
+        reader = models.Reader.objects.filter(username=reader_name).first()
+        if not reader:
+            return JsonResponse({
+                'status': 'error',
+                'error': '读者不存在！',
+            })
+        reader_id = reader.id
+
+        book_id = request.POST.get('book-id')
+        copy_id = request.POST.get('copy-id')
+        copy = models.BookCopy.objects.filter(id=copy_id).first()
+
+        # if not copy:
+        #     return JsonResponse({
+        #         'status': 'error',
+        #         'error': '该书册不存在，请刷新页面！',
+        #     })
+
+        # if copy.state != '1':
+        #     return JsonResponse({
+        #         'status': 'error',
+        #         'error': '该书册不可借，请刷新页面！',
+        #     })
+
+        active_records = models.BorrowRecord.objects.filter(reader_id=reader_id, return_time=None)
+        if active_records.filter(copy_id__isbn__id=book_id).exists():
+            return JsonResponse({
+                'status': 'error',
+                'error': '该读者已借阅该书目！',
+            })
+
+        if active_records.filter(due_time__lt=datetime.now()).exists():
+            return JsonResponse({
+                'status': 'error',
+                'error': '该读者有超时未还的书籍，无法借阅！',
+            })
+
+        if active_records.count() >= 10:  # 最多借阅10本书
+            return JsonResponse({
+                'status': 'error',
+                'error': '该读者借阅书籍数量已达上限！',
+            })
+
+        start_time = datetime.now()
+        duration = timedelta(minutes=1)
+        due_time = start_time + duration
+
+        models.BorrowRecord.objects.create(
+            reader_id=models.Reader.objects.filter(id=reader_id).first(),
+            copy_id=models.BookCopy.objects.filter(id=copy_id).first(),
+            start_time=start_time.strftime("%Y-%m-%d %H:%M:%S"),
+            due_time=due_time.strftime("%Y-%m-%d %H:%M:%S"),
+        )
+
+        copy = models.BookCopy.objects.filter(id=copy_id).first()
+        copy.state = 2
+        copy.save()
+        return JsonResponse({
+            'status': 'success',
+            'message': '借阅成功！',
+        })
+
 class LibrarianEditCopy(View):
     @method_decorator(require_POST)
     def post(self, request):
@@ -484,68 +520,123 @@ class LibrarianDeleteCopy(View):
             'message': '删除成功！',
         })
 
-class LibrarianProcess(View):
+class LibrarianBorrowList(View):
     def get(self, request):
-        context = {'borrow_list': models.BorrowRecord.objects.all()}
-        return render(request, 'librarian/process.html', context)
-    
-class LibrarianApproveBorrow(View):
+        records = models.BorrowRecord.objects.all()
+        active_records = records.filter(return_time__isnull=True)
+        history_records = records.filter(return_time__isnull=False)
+        context = {
+            'active_records': active_records,
+            'history_records': history_records,
+        }
+        return render(request, 'librarian/borrow_list.html', context)
+
+class LibrarianReturn(View):
     @method_decorator(require_POST)
     def post(self, request):
         borrow_id = request.POST.get('borrow-id')
+        return_time = datetime.now()
+
+        record = models.BorrowRecord.objects.filter(id=borrow_id).first()
+        record.return_time = return_time.strftime("%Y-%m-%d %H:%M:%S")
+
+        copy = models.BookCopy.objects.filter(id=record.copy_id.id).first()
+        # 查询是否有其他用户预约该书目
+        book = copy.isbn
+        reserve_records = models.ReserveRecord.objects.filter(isbn=book, copy_id=None)
+        if reserve_records:
+            # 修改图书状态，系统同时自动查询其他读者预约该书的记录，
+            # 将该图书的状态修改为“已预约”，并写入相应的预约记录。
+            copy.state = 4  # 已预约
+            reserve_record = reserve_records.first()
+            reserve_record.copy_id = copy
+            reserve_record.arrive_time = datetime.now()
+            reserve_record.save()
+
+            reader_email = reserve_record.reader_id.email
+            send_mail(
+                subject="预约书籍可借通知",
+                message="您好，您预约的书籍现在可以借阅了，请在10日内完成借阅手续，否则预约无效。",
+                from_email="gzy500699@163.com",
+                recipient_list=[reader_email],
+            )
+            print("sent")
+        else:
+            copy.state = 1  # 未借出
+        copy.save()
+
+        if return_time.timestamp() > record.due_time.timestamp():
+            # 罚金计算公式为：罚金 =（归还时间-应还时间）* 单价，不足一天按一天计算
+            price_per_day = 2
+            fine = (return_time.timestamp() - record.due_time.timestamp()) * price_per_day
+            record.fine = fine
+        record.save()
+
+        return JsonResponse({
+            'status': 'success',
+            'message': '归还成功！',
+        })
+    
+class LibrarianReserveList(View):
+    def get(self, request):
+        records = models.ReserveRecord.objects.all()
+        context = {
+            'reserve_records': records,
+        }
+        return render(request, 'librarian/reserve_list.html', context)
+    
+class LibrarianTakeReservedBook(View):
+    @method_decorator(require_POST)
+    def post(self, request):
+        reserve_id = request.POST.get('reserve-id')
+
+        record = models.ReserveRecord.objects.filter(id=reserve_id).first()
 
         start_time = datetime.now()
-        duration = timedelta(seconds=10)
+        duration = timedelta(minutes=1)
         due_time = start_time + duration
 
-        record = models.BorrowRecord.objects.filter(id=borrow_id).first()
-        record.start_time = start_time.strftime("%Y-%m-%d %H:%M:%S")
-        record.due_time = due_time.strftime("%Y-%m-%d %H:%M:%S")
-        record.is_checked = True
+        models.BorrowRecord.objects.create(
+            reader_id=record.reader_id,
+            copy_id=record.copy_id,
+            start_time=start_time.strftime("%Y-%m-%d %H:%M:%S"),
+            due_time=due_time.strftime("%Y-%m-%d %H:%M:%S"),
+        )
         copy = models.BookCopy.objects.filter(id=record.copy_id.id).first()
-        copy.state = 2
+        copy.state = 2  # 已借出
         copy.save()
-        record.save()
+
+        record.delete()
+
         return JsonResponse({
             'status': 'success',
+            'message': '已领取！',
         })
 
-class LibrarianRefuseBorrow(View):
-    @method_decorator(require_POST)
-    def post(self, request):
-        borrow_id = request.POST.get('borrow-id')
-        record = models.BorrowRecord.objects.filter(id=borrow_id).first()
-        record.is_checked = True
-        record.save()
-        return JsonResponse({
-            'status': 'success',
-        })
 
-# cron function
+# 定时任务
 def print_time():
     print(datetime.now())
 
 def delete_reserve():
     reserve_list = models.ReserveRecord.objects.all()
     for record in reserve_list:
-        if record.book_arrive_time:
-            # 当前时间晚于最晚领取时间
-            if (record.book_arrive_time + timedelta(seconds=record.reserve_days)
-                < datetime.now()
-            ):
+        # 系统在清除超出预约期限的记录时解除该图书的“已预约”状态；否则，将该图书的状态修改为“未借出”。
+        if record.copy_id and \
+            record.arrive_time + timedelta(minutes=record.available_days) < datetime.now():  # 当前时间晚于最晚领取时间
                 copy = models.BookCopy.objects.filter(id=record.copy_id.id).first()
-                copy.state = "未借出"
+                copy.state = 1  # 未借出
                 copy.save()
                 record.delete()
 
 def expire_notice():
-    borrow_list = models.BorrowRecord.objects.all()
-    for copy in borrow_list:
+    borrow_records = models.BorrowRecord.objects.all()
+    for copy in borrow_records:
         if copy.due_time < datetime.now() and not copy.return_time:
             reader_email = models.Reader.objects.get(id=copy.reader_id.id).email
             send_mail(
                 subject="书籍归还提醒",
-                message="您好,您借阅的书籍已逾期,请尽快归还并缴纳罚金,谢谢!",
+                message="您好,您借阅的书籍已逾期，请尽快归还并缴纳罚金,谢谢!",
                 from_email="gzy500699@163.com",
                 recipient_list=[reader_email],
             )

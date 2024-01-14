@@ -22,6 +22,7 @@
                 {% endif %}>
                 查询书目
             </a>
+
             <a href={% url 'reader_borrow_list' %}
                 {% if request.path == '/reader/borrow_list' %}
                     class="current"
@@ -29,7 +30,14 @@
                 借阅记录
             </a>
 
-            <a href="#">设置</a>
+            <a href={% url 'reader_reserve_list' %}
+                {% if request.path == '/reader/reserve_list' %}
+                    class="current"
+                {% endif %}>
+                预约记录
+            </a>
+
+            <a href="#">用户中心</a>
             <a href="{% url 'entry' %}">退出</a>
         </div>
     </div>

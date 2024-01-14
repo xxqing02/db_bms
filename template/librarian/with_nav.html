@@ -22,11 +22,19 @@
                 {% endif %}>
                 管理书目
             </a>
-            <a href={% url 'librarian_process' %}
-                {% if request.path == '/librarian/process' %}
+
+            <a href={% url 'librarian_borrow_list' %}
+                {% if request.path == '/librarian/borrow_list' %}
                     class="current"
                 {% endif %}>
-                审理借阅
+                借阅记录
+            </a>
+
+            <a href={% url 'librarian_reserve_list' %}
+                {% if request.path == '/librarian/reserve_list' %}
+                    class="current"
+                {% endif %}>
+                预约记录
             </a>
 
             <a href="#">设置</a>
