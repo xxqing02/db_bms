@@ -78,11 +78,11 @@ DEFAULT_CHARSET = "utf-8"
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
-CONFIG_FILEPATH = "./config.yaml"
-if not os.path.exists(CONFIG_FILEPATH):
-    raise Exception("Config file not exists!")
+# CONFIG_FILEPATH = "config.yaml"
+# if not os.path.exists(CONFIG_FILEPATH):
+#     raise Exception("Config file not exists!")
 
-config = YAML().load(open(CONFIG_FILEPATH))
+# config = YAML().load(open(CONFIG_FILEPATH))
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
@@ -90,7 +90,7 @@ DATABASES = {
         "USER": "root",
         "HOST": "localhost",
         "PORT": 3306,
-        "PASSWORD": "123456",
+        "PASSWORD": "114514",
     }
 }
 
@@ -150,7 +150,7 @@ EMAIL_USE_TLS = False
 
 # about crontab
 CRONJOBS = [
-    ("*/1 * * * *", "app.views.delete_reserve",">>~/cron.log 2>&1"),
-    ("*/1 * * * *", "app.views.expire_notice",">>~/cron.log 2>&1"),
-    ("*/1 * * * *", "app.views.print_time",">>~/cron.log 2>&1")
+    ("*/1 * * * *", "app.cron.delete_reserve", ">>~/cron.log 2>&1"),
+    ("*/1 * * * *", "app.cron.expire_notice", ">>~/cron.log 2>&1"),
+    ("*/1 * * * *", "app.cron.print_time", ">>~/cron.log 2>&1"),
 ]

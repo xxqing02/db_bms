@@ -5,19 +5,18 @@ from django.conf import settings
 import os
 from ruamel.yaml import YAML
 
-# CONFIG_FILEPATH = "./config.yaml"
+CONFIG_FILEPATH = "./config.yaml"
 
 def init_database():
-    # if not os.path.exists(CONFIG_FILEPATH):
-    #     raise Exception("Config file not exists!")
+    if not os.path.exists(CONFIG_FILEPATH):
+        raise Exception("Config file not exists!")
 
-    # config = YAML().load(open(CONFIG_FILEPATH))
-
+    config = YAML().load(open(CONFIG_FILEPATH))
     conn = pymysql.connect(
-        host="localhost",
-        port=3306,
-        user="root",
-        password="123456",
+        host=config['database']['host'],
+        port=config['database']['port'],
+        user=config['database']['user'],
+        password=config['database']['password'],
         charset="utf8",
     )
 

@@ -8,6 +8,7 @@ class Reader(models.Model):
     password = models.CharField(verbose_name='密码', max_length=80)
     phone = models.CharField(verbose_name='手机号', unique=True, max_length=20)
     email = models.EmailField(verbose_name='邮箱', unique=True, max_length=80)
+    fine = models.FloatField(verbose_name='罚金', default=0)
     
     def __str__(self):
         return self.username

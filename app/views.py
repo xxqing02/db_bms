@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect
 from django.views import View
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.http import require_POST
+from django.core.mail import send_mail
 from django.urls import reverse
 from datetime import datetime, timedelta
-from django.core.mail import send_mail
 
 from . import models
 
@@ -213,9 +213,16 @@ class ReaderReserve(View):
                 'error': '您的借阅书籍数量已达上限！',
             })
 
+        reader = models.Reader.objects.filter(id=reader_id).first()
+        if reader.fine > 0.0:
+            return JsonResponse({
+                'status': 'error',
+                'error': '您未支付欠款，无法预约！',
+            })
+
         reserve_time = datetime.now()
         models.ReserveRecord.objects.create(
-            reader_id=models.Reader.objects.filter(id=reader_id).first(),
+            reader_id=reader,
             isbn=models.Book.objects.filter(id=book_id).first(),
             reserve_time=reserve_time.strftime("%Y-%m-%d %H:%M:%S"),
         )
@@ -457,6 +464,12 @@ class LibrarianBorrow(View):
                 'error': '该读者借阅书籍数量已达上限！',
             })
 
+        if reader.fine > 0.0:
+            return JsonResponse({
+                'status': 'error',
+                'error': '该读者未支付欠款，无法借阅！',
+            })
+
         start_time = datetime.now()
         duration = timedelta(minutes=1)
         due_time = start_time + duration
@@ -568,8 +581,11 @@ class LibrarianReturn(View):
         if return_time.timestamp() > record.due_time.timestamp():
             # 罚金计算公式为：罚金 =（归还时间-应还时间）* 单价，不足一天按一天计算
             price_per_day = 2
-            fine = (return_time.timestamp() - record.due_time.timestamp()) * price_per_day
+            fine = (return_time.minute - record.due_time.minute) * price_per_day
             record.fine = fine
+            reader = record.reader_id
+            reader.fine += fine
+            reader.save()
         record.save()
 
         return JsonResponse({
@@ -591,6 +607,12 @@ class LibrarianTakeReservedBook(View):
         reserve_id = request.POST.get('reserve-id')
 
         record = models.ReserveRecord.objects.filter(id=reserve_id).first()
+        reader = record.reader_id
+        if reader.fine > 0.0:
+            return JsonResponse({
+                'status': 'error',
+                'error': '该读者未支付欠款，无法领取！',
+            })
 
         start_time = datetime.now()
         duration = timedelta(minutes=1)
@@ -612,31 +634,3 @@ class LibrarianTakeReservedBook(View):
             'status': 'success',
             'message': '已领取！',
         })
-
-
-# 定时任务
-def print_time():
-    print(datetime.now())
-
-def delete_reserve():
-    reserve_list = models.ReserveRecord.objects.all()
-    for record in reserve_list:
-        # 系统在清除超出预约期限的记录时解除该图书的“已预约”状态；否则，将该图书的状态修改为“未借出”。
-        if record.copy_id and \
-            record.arrive_time + timedelta(minutes=record.available_days) < datetime.now():  # 当前时间晚于最晚领取时间
-                copy = models.BookCopy.objects.filter(id=record.copy_id.id).first()
-                copy.state = 1  # 未借出
-                copy.save()
-                record.delete()
-
-def expire_notice():
-    borrow_records = models.BorrowRecord.objects.all()
-    for copy in borrow_records:
-        if copy.due_time < datetime.now() and not copy.return_time:
-            reader_email = models.Reader.objects.get(id=copy.reader_id.id).email
-            send_mail(
-                subject="书籍归还提醒",
-                message="您好,您借阅的书籍已逾期，请尽快归还并缴纳罚金,谢谢!",
-                from_email="gzy500699@163.com",
-                recipient_list=[reader_email],
-            )
