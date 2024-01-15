@@ -1,0 +1,49 @@
+{% extends "reader/with_nav.html" %}
+
+{% block main_content %}
+    <div class="main-section">
+        {% if reserve_records %}
+            <p>预约记录（共 {{ reserve_records|length }} 条）</p>
+            <div class="table-container">
+                <table>
+                    <tr>
+                        <th>书名</th>
+                        <th>ISBN</th>
+                        <th>预约时间</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                    {% for record in reserve_records %}
+                        <tr>
+                            <td>{{ record.isbn.title }}</td>
+                            <td>{{ record.isbn.isbn }}</td>
+                            <td>{{ record.reserve_time }}</td>
+                            <td>
+                                {% if record.copy_id %}
+                                    可领取
+                                {% else %}
+                                    暂无可借
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a class="open-cancel-reserve-modal-btn" record-id="{{ record.id }}">取消</a>
+                            </td>
+                        </tr>
+
+                        {# 取消预约模态框 #}
+                        <div id="cancel-reserve-modal{{ record.id }}" class="centered-modal add-book-modal-width" style="display: none;">
+                            <p>确定要取消预约吗？</p>
+                            <form id="cancel-reserve-form{{ record.id }}">
+                                {% csrf_token %}
+                                <input type="hidden" name="reserve-id" value="{{ record.id }}">
+                                <button id="confirm-cancel-reserve-btn{{ record.id }}">删除</button>
+                                <button id="cancel-cancel-reserve-btn{{ record.id }}">取消</button>
+                            </form>
+                        </div>
+                    {% endfor %}
+                </table>
+            </div>
+        {% else %}
+            <p>暂无预约记录</p>
+        {% endif %}
+{% endblock %}
