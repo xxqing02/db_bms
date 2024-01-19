@@ -1,5 +1,7 @@
 {% extends "reader/with_nav.html" %}
 
+{% load app_extras %}
+
 {% block main_content %}
     <div class="main-section">
         <p>当前借阅记录（共 {{ active_records|length }} 条）</p>
@@ -22,7 +24,27 @@
                             <td>{{ record.start_time | date:"Y-m-d H:i:s"}}</td>
                             <td>{{ record.due_time | date:"Y-m-d H:i:s"}}</td>
                             <td>
-                                <a>续借</a>
+                            {% with days=record.due_time|calculate_days_difference:record.start_time %}
+                            {% if days < 59 and not overtime%}
+                                <div>
+                                <p>续借天数</p>
+                                    <ul>
+                                    {% with result=59|subtract:days %}
+                                        {% with result|enum as range%}
+                                            {% for i in range %}
+                                                <form id="renewal-form{{ i }}">
+                                                    {% csrf_token %}
+                                                    <input type="hidden" name="day" value="{{ i }}">
+                                                    <input type="hidden" name="borrow-id" value="{{ record.id }}">
+                                                    <button class="renewal-btn" i-id="{{ i }}">{{ i }}</button>
+                                                </form>
+                                            {% endfor %}
+                                        {% endwith %}
+                                    {% endwith %}
+                                    </ul>
+                                </div>
+                            {% endif %}
+                            {% endwith %}
                             </td>
                         </tr>
                     {% endfor %}

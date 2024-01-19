@@ -233,13 +233,18 @@ class ReaderReserve(View):
 
 class ReaderBorrowList(View):
     def get(self, request):
+        overtime = False
         reader_id = request.session.get('reader_id')
         records = models.BorrowRecord.objects.filter(reader_id=reader_id).all()
+        for record in records:
+            if record.due_time.timestamp() < datetime.now().timestamp():
+                overtime = True
         active_records = records.filter(return_time__isnull=True)
         history_records = records.filter(return_time__isnull=False)
         context = {
             'active_records': active_records,
             'history_records': history_records,
+            'overtime': overtime,
         }
         return render(request, 'reader/borrow_list.html', context)
 
@@ -251,6 +256,15 @@ class ReaderReserveList(View):
             'reserve_records': records,
         }
         return render(request, 'reader/reserve_list.html', context)
+    
+class ReaderUserSpace(View):
+    def get(self, request):
+        reader_id = request.session.get('reader_id')
+        reader = models.Reader.objects.filter(id=reader_id).first()
+        context = {
+            'reader': reader,
+        }
+        return render(request, 'reader/user_space.html', context)
 
 class ReaderCancelReservation(View):
     @method_decorator(require_POST)
@@ -262,6 +276,35 @@ class ReaderCancelReservation(View):
         return JsonResponse({
             'status': 'success',
             'message': '已取消预约！',
+        })
+    
+
+class ReaderPayFine(View):
+    @method_decorator(require_POST)
+    def post(self, request):
+        reader_id = request.session.get('reader_id')
+        reader = models.Reader.objects.filter(id=reader_id).first()
+        reader.fine = 0.0
+        reader.save()
+        return JsonResponse({
+            'status': 'success',
+            'message': '支付成功！',
+        })
+
+
+class ReaderRenewal(View):
+    @method_decorator(require_POST)
+    def post(self, request):
+        borrow_id = request.POST.get('borrow-id')
+        days = int(request.POST.get('day'))
+        record = models.BorrowRecord.objects.filter(id=borrow_id).first()
+        record.due_time = record.due_time + timedelta(days=days)
+        print(record.due_time)
+        print(days)
+        record.save()
+        return JsonResponse({
+            'status': 'success',
+            'message': '续借成功！',
         })
 
 ##################################################################################
@@ -471,7 +514,8 @@ class LibrarianBorrow(View):
             })
 
         start_time = datetime.now()
-        duration = timedelta(minutes=1)
+        # duration = timedelta(minutes=1)
+        duration = timedelta(days=13)
         due_time = start_time + duration
 
         models.BorrowRecord.objects.create(

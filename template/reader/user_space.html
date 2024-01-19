@@ -1,0 +1,22 @@
+{% extends "reader/with_nav.html" %}
+
+{% block main_content %}
+<div class="main-section">
+    <div class="book-info-container">
+        <div class="book-info-title">用户中心</div>
+        <div class="book-info-text">读者ID: {{ reader.id }}</div>
+        <div class="book-info-text">用户名：{{ reader.username }}</div>
+        <div class="book-info-text">手机号：{{ reader.phone }}</div>
+        <div class="book-info-text">邮箱: {{ reader.email }}</div>
+        <div class="book-info-text">当前账单：{{ reader.fine }}</div>
+        {% if reader.fine != 0 %}
+        <div class="book-info-btn-container">
+            <form id="pay-form" >
+            {% csrf_token %}
+            <button id="pay-btn" class="button-default">还款</button>
+            </form>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

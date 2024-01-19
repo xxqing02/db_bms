@@ -33,7 +33,8 @@ function showErrorMessage(text) {
     showMessage(errorId);
 }
 
-document.addEventListener("DOMContentLoaded", function() {
+
+document.addEventListener("DOMContentLoaded", function () {
     login(); // 登录
     register(); // 注册
 
@@ -46,11 +47,14 @@ document.addEventListener("DOMContentLoaded", function() {
     addCopy(); // 添加书册
 
     borrowBook(); // 借书
+    renewalBook(); // 续借
     returnBook(); // 还书
     takeReservedBook(); // 领取预约书籍
 
     reserveBook(); // 预约
     cancelReservation(); // 取消预约
+    payFine(); // 缴纳罚金 
+    //219-285
 });
 
 function login() {
@@ -61,7 +65,7 @@ function login() {
 
     const userType = loginBtn.getAttribute('user-type');
     const form = document.getElementById('login-form');
-    form.addEventListener('submit', function(event) { event.preventDefault(); });
+    form.addEventListener('submit', function (event) { event.preventDefault(); });
 
     loginBtn.addEventListener('click', () => handleLogin());
 
@@ -70,18 +74,18 @@ function login() {
             method: 'POST',
             body: new FormData(form),
         })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            if (data.status === 'success') {
-                window.location.href = data.redirect;
-            } else if (data.status === 'error') {
-                showErrorMessage(data.error);
-            }
-        })
-        .catch(error => {
-            console.error('发生错误:', error);
-        });
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.status === 'success') {
+                    window.location.href = data.redirect;
+                } else if (data.status === 'error') {
+                    showErrorMessage(data.error);
+                }
+            })
+            .catch(error => {
+                console.error('发生错误:', error);
+            });
     }
 }
 
@@ -93,7 +97,7 @@ function register() {
 
     const userType = registerBtn.getAttribute('user-type');
     const form = document.getElementById('register-form');
-    form.addEventListener('submit', function(event) { event.preventDefault(); });
+    form.addEventListener('submit', function (event) { event.preventDefault(); });
 
     registerBtn.addEventListener('click', () => handleRegister());
 
@@ -102,21 +106,21 @@ function register() {
             method: 'POST',
             body: new FormData(form),
         })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            if (data.status === 'success') {
-                showSuccessMessage(data.message);
-                setTimeout(() => {
-                    window.location.href = data.redirect;
-                }, 2200);
-            } else if (data.status === 'error') {
-                showErrorMessage(data.error);
-            }
-        })
-        .catch(error => {
-            console.error('发生错误:', error);
-        });
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.status === 'success') {
+                    showSuccessMessage(data.message);
+                    setTimeout(() => {
+                        window.location.href = data.redirect;
+                    }, 2200);
+                } else if (data.status === 'error') {
+                    showErrorMessage(data.error);
+                }
+            })
+            .catch(error => {
+                console.error('发生错误:', error);
+            });
     }
 }
 
@@ -141,29 +145,29 @@ function addBook() {
     openModalBtn.addEventListener('click', () => showModal(modal));
     cancelBtn.addEventListener('click', () => hideModal(modal));
     confirmBtn.addEventListener('click', () => handleAddBook());
-    form.addEventListener('submit', function(event) { event.preventDefault(); });
+    form.addEventListener('submit', function (event) { event.preventDefault(); });
 
     function handleAddBook() {
         fetch('/librarian/add_book', {
             method: 'POST',
             body: new FormData(form),
         })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            if (data.status === 'success') {
-                hideModal(modal);
-                showSuccessMessage(data.message);
-                setTimeout(() => {
-                    window.location.reload();
-                }, 2200);
-            } else if (data.status === 'error') {
-                showErrorMessage(data.error);
-            }
-        })
-        .catch(error => {
-            console.error('发生错误:', error);
-        });
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.status === 'success') {
+                    hideModal(modal);
+                    showSuccessMessage(data.message);
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2200);
+                } else if (data.status === 'error') {
+                    showErrorMessage(data.error);
+                }
+            })
+            .catch(error => {
+                console.error('发生错误:', error);
+            });
     }
 }
 
@@ -173,14 +177,14 @@ function deleteBook() {
         return;
     }
 
-    openModalBtns.forEach(function(btn) {
-        btn.addEventListener('click', function() {
+    openModalBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
             const bookId = btn.getAttribute('book-id');
             const modal = document.getElementById('delete-book-modal' + bookId);
             const confirmBtn = document.getElementById('confirm-delete-book-btn' + bookId);
             const cancelBtn = document.getElementById('cancel-delete-book-btn' + bookId);
             const form = document.getElementById('delete-book-form' + bookId);
-            form.addEventListener('submit', function(event) { event.preventDefault(); });
+            form.addEventListener('submit', function (event) { event.preventDefault(); });
 
             showModal(modal);
 
@@ -192,25 +196,90 @@ function deleteBook() {
                     method: 'POST',
                     body: new FormData(form),
                 })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        if (data.status === 'success') {
+                            showSuccessMessage(data.message);
+                            hideModal(modal);
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 2200);
+                        } else if (data.status === 'error') {
+                            showErrorMessage(data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('发生错误:', error);
+                    });
+            }
+        });
+    });
+}
+
+function payFine() {
+    const payBtn = document.getElementById('pay-btn');
+    if (payBtn === null) {
+        return;
+    }
+
+    payBtn.addEventListener('click', function () {
+        const form = document.getElementById('pay-form');
+        form.addEventListener('submit', function (event) { event.preventDefault(); });
+
+        fetch('/reader/pay_fine', {
+            method: 'POST',
+            body: new FormData(form),
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.status === 'success') {
+                    showSuccessMessage(data.message);
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2200);
+                } 
+            })
+            .catch(error => {
+                console.error('发生错误:', error);
+            });
+    });
+}
+
+function renewalBook() {
+    const renewalBtns = document.querySelectorAll('.renewal-btn');
+    if (renewalBtns === null) {
+        return;
+    }
+
+    renewalBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            // const borrowId = btn.getAttribute('borrow-id');
+            const iId = btn.getAttribute('i-id');
+            const form = document.getElementById('renewal-form'+iId);
+            form.addEventListener('submit', function (event) { event.preventDefault(); });
+
+            fetch('/reader/renewal', {
+                method: 'POST',
+                body: new FormData(form),
+            })
                 .then(response => response.json())
                 .then(data => {
                     console.log(data);
                     if (data.status === 'success') {
                         showSuccessMessage(data.message);
-                        hideModal(modal);
                         setTimeout(() => {
                             window.location.reload();
                         }, 2200);
-                    } else if (data.status === 'error') {
-                        showErrorMessage(data.error);
-                    }
+                    } 
                 })
                 .catch(error => {
                     console.error('发生错误:', error);
                 });
-            }
         });
-    });
+    })
+
 }
 
 function editBook() {
@@ -223,7 +292,7 @@ function editBook() {
     const confirmBtn = document.getElementById('confirm-edit-book-btn');
     const cancelBtn = document.getElementById('cancel-edit-book-btn');
     const form = document.getElementById('edit-book-form');
-    form.addEventListener('submit', function(event) { event.preventDefault(); });
+    form.addEventListener('submit', function (event) { event.preventDefault(); });
 
     openModalBtn.addEventListener('click', () => showModal(modal));
     cancelBtn.addEventListener('click', () => hideModal(modal));
@@ -234,22 +303,22 @@ function editBook() {
             method: 'POST',
             body: new FormData(form),
         })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            if (data.status === 'success') {
-                showSuccessMessage(data.message);
-                hideModal(modal);
-                setTimeout(() => {
-                    window.location.reload();
-                }, 2200);
-            } else if (data.status === 'error') {
-                showErrorMessage(data.error);
-            }
-        })
-        .catch(error => {
-            console.error('发生错误:', error);
-        });
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.status === 'success') {
+                    showSuccessMessage(data.message);
+                    hideModal(modal);
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2200);
+                } else if (data.status === 'error') {
+                    showErrorMessage(data.error);
+                }
+            })
+            .catch(error => {
+                console.error('发生错误:', error);
+            });
     }
 }
 
@@ -259,14 +328,14 @@ function borrowBook() {
         return;
     }
 
-    openModalBtns.forEach(function(btn) {
-        btn.addEventListener('click', function() {
+    openModalBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
             const copyId = btn.getAttribute('copy-id');
             const modal = document.getElementById('borrow-modal' + copyId);
             const confirmBtn = document.getElementById('confirm-borrow-btn' + copyId);
             const cancelBtn = document.getElementById('cancel-borrow-btn' + copyId);
             const form = document.getElementById('borrow-form' + copyId);
-            form.addEventListener('submit', function(event) { event.preventDefault(); });
+            form.addEventListener('submit', function (event) { event.preventDefault(); });
 
             showModal(modal);
 
@@ -278,22 +347,22 @@ function borrowBook() {
                     method: 'POST',
                     body: new FormData(form),
                 })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);
-                    if (data.status === 'success') {
-                        showSuccessMessage(data.message);
-                        hideModal(modal);
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 2200);
-                    } else if (data.status === 'error') {
-                        showErrorMessage(data.error);
-                    }
-                })
-                .catch(error => {
-                    console.error('发生错误:', error);
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        if (data.status === 'success') {
+                            showSuccessMessage(data.message);
+                            hideModal(modal);
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 2200);
+                        } else if (data.status === 'error') {
+                            showErrorMessage(data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('发生错误:', error);
+                    });
             }
         });
     });
@@ -305,14 +374,14 @@ function editCopy() {
         return;
     }
 
-    openModalBtns.forEach(function(btn) {
-        btn.addEventListener('click', function() {
+    openModalBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
             const copyId = btn.getAttribute('copy-id');
             const modal = document.getElementById('edit-copy-modal' + copyId);
             const confirmBtn = document.getElementById('confirm-edit-copy-btn' + copyId);
             const cancelBtn = document.getElementById('cancel-edit-copy-btn' + copyId);
             const form = document.getElementById('edit-copy-form' + copyId);
-            form.addEventListener('submit', function(event) { event.preventDefault(); });
+            form.addEventListener('submit', function (event) { event.preventDefault(); });
 
             document.getElementById('edit-position' + copyId).value = btn.getAttribute('position');
 
@@ -326,25 +395,26 @@ function editCopy() {
                     method: 'POST',
                     body: new FormData(form),
                 })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);
-                    if (data.status === 'success') {
-                        showSuccessMessage(data.message);
-                        hideModal(modal);
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 2200);
-                    } else if (data.status === 'error') {
-                        showErrorMessage(data.error);
-                    }
-                })
-                .catch(error => {
-                    console.error('发生错误:', error);
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        if (data.status === 'success') {
+                            showSuccessMessage(data.message);
+                            hideModal(modal);
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 2200);
+                        } else if (data.status === 'error') {
+                            showErrorMessage(data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('发生错误:', error);
+                    });
             }
         }
-    )});
+        )
+    });
 }
 
 function deleteCopy() {
@@ -353,14 +423,14 @@ function deleteCopy() {
         return;
     }
 
-    openModalBtns.forEach(function(btn) {
-        btn.addEventListener('click', function() {
+    openModalBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
             const copyId = btn.getAttribute('copy-id');
             const modal = document.getElementById('delete-copy-modal' + copyId);
             const confirmBtn = document.getElementById('confirm-delete-copy-btn' + copyId);
             const cancelBtn = document.getElementById('cancel-delete-copy-btn' + copyId);
             const form = document.getElementById('delete-copy-form' + copyId);
-            form.addEventListener('submit', function(event) { event.preventDefault(); });
+            form.addEventListener('submit', function (event) { event.preventDefault(); });
 
             showModal(modal);
 
@@ -372,22 +442,22 @@ function deleteCopy() {
                     method: 'POST',
                     body: new FormData(form),
                 })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);
-                    if (data.status === 'success') {
-                        showSuccessMessage(data.message);
-                        hideModal(modal);
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 2200);
-                    } else if (data.status === 'error') {
-                        showErrorMessage(data.error);
-                    }
-                })
-                .catch(error => {
-                    console.error('发生错误:', error);
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        if (data.status === 'success') {
+                            showSuccessMessage(data.message);
+                            hideModal(modal);
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 2200);
+                        } else if (data.status === 'error') {
+                            showErrorMessage(data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('发生错误:', error);
+                    });
             }
         });
     });
@@ -403,7 +473,7 @@ function addCopy() {
     const confirmBtn = document.getElementById('confirm-add-copy-btn');
     const cancelBtn = document.getElementById('cancel-add-copy-btn');
     const form = document.getElementById('add-copy-form');
-    form.addEventListener('submit', function(event) { event.preventDefault(); });
+    form.addEventListener('submit', function (event) { event.preventDefault(); });
 
     openModalBtn.addEventListener('click', () => showModal(modal));
     cancelBtn.addEventListener('click', () => hideModal(modal));
@@ -414,46 +484,12 @@ function addCopy() {
             method: 'POST',
             body: new FormData(form),
         })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            if (data.status === 'success') {
-                showSuccessMessage(data.message);
-                hideModal(modal);
-                setTimeout(() => {
-                    window.location.reload();
-                }, 2200);
-            } else if (data.status === 'error') {
-                showErrorMessage(data.error);
-            }
-        })
-        .catch(error => {
-            console.error('发生错误:', error);
-        });
-    }
-}
-
-function returnBook() {
-    const returnBtns = document.querySelectorAll('.return-btn');
-    if (returnBtns === null) {
-        return;
-    }
-
-    returnBtns.forEach(function(btn) {
-        btn.addEventListener('click', function() {
-            const borrowId = btn.getAttribute('borrow-id');
-            const form = document.getElementById('return-form' + borrowId);
-            form.addEventListener('submit', function(event) { event.preventDefault(); });
-
-            fetch('/librarian/return', {
-                method: 'POST',
-                body: new FormData(form),
-            })
             .then(response => response.json())
             .then(data => {
                 console.log(data);
                 if (data.status === 'success') {
                     showSuccessMessage(data.message);
+                    hideModal(modal);
                     setTimeout(() => {
                         window.location.reload();
                     }, 2200);
@@ -464,6 +500,40 @@ function returnBook() {
             .catch(error => {
                 console.error('发生错误:', error);
             });
+    }
+}
+
+function returnBook() {
+    const returnBtns = document.querySelectorAll('.return-btn');
+    if (returnBtns === null) {
+        return;
+    }
+
+    returnBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const borrowId = btn.getAttribute('borrow-id');
+            const form = document.getElementById('return-form' + borrowId);
+            form.addEventListener('submit', function (event) { event.preventDefault(); });
+
+            fetch('/librarian/return', {
+                method: 'POST',
+                body: new FormData(form),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    if (data.status === 'success') {
+                        showSuccessMessage(data.message);
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2200);
+                    } else if (data.status === 'error') {
+                        showErrorMessage(data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('发生错误:', error);
+                });
         });
     })
 }
@@ -474,31 +544,31 @@ function takeReservedBook() {
         return;
     }
 
-    takeBtns.forEach(function(btn) {
-        btn.addEventListener('click', function() {
+    takeBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
             const reserveId = btn.getAttribute('reserve-id');
             const form = document.getElementById('take-reserved-book-form' + reserveId);
-            form.addEventListener('submit', function(event) { event.preventDefault(); });
+            form.addEventListener('submit', function (event) { event.preventDefault(); });
 
             fetch('/librarian/take_reserved_book', {
                 method: 'POST',
                 body: new FormData(form),
             })
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                if (data.status === 'success') {
-                    showSuccessMessage(data.message);
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 2200);
-                } else if (data.status === 'error') {
-                    showErrorMessage(data.error);
-                }
-            })
-            .catch(error => {
-                console.error('发生错误:', error);
-            });
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    if (data.status === 'success') {
+                        showSuccessMessage(data.message);
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2200);
+                    } else if (data.status === 'error') {
+                        showErrorMessage(data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('发生错误:', error);
+                });
         });
     })
 }
@@ -514,7 +584,7 @@ function reserveBook() {
     }
 
     const form = document.getElementById('reserve-form');
-    form.addEventListener('submit', function(event) { event.preventDefault(); });
+    form.addEventListener('submit', function (event) { event.preventDefault(); });
 
     reserveBtn.addEventListener('click', () => handleReservation());
 
@@ -523,21 +593,21 @@ function reserveBook() {
             method: 'POST',
             body: new FormData(form),
         })
-        .then(response => response.json())
-        .then(data => {
-            console.log(data);
-            if (data.status === 'success') {
-                showSuccessMessage(data.message);
-                setTimeout(() => {
-                    window.location.reload();
-                }, 2200);
-            } else if (data.status === 'error') {
-                showErrorMessage(data.error);
-            }
-        })
-        .catch(error => {
-            console.error('发生错误:', error);
-        });
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);
+                if (data.status === 'success') {
+                    showSuccessMessage(data.message);
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2200);
+                } else if (data.status === 'error') {
+                    showErrorMessage(data.error);
+                }
+            })
+            .catch(error => {
+                console.error('发生错误:', error);
+            });
     }
 }
 
@@ -547,14 +617,14 @@ function cancelReservation() {
         return;
     }
 
-    openModalBtns.forEach(function(btn) {
-        btn.addEventListener('click', function() {
+    openModalBtns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
             const reserveId = btn.getAttribute('record-id');
             const modal = document.getElementById('cancel-reserve-modal' + reserveId);
             const confirmBtn = document.getElementById('confirm-cancel-reserve-btn' + reserveId);
             const cancelBtn = document.getElementById('cancel-cancel-reserve-btn' + reserveId);
             const form = document.getElementById('cancel-reserve-form' + reserveId);
-            form.addEventListener('submit', function(event) { event.preventDefault(); });
+            form.addEventListener('submit', function (event) { event.preventDefault(); });
 
             showModal(modal);
 
@@ -566,22 +636,22 @@ function cancelReservation() {
                     method: 'POST',
                     body: new FormData(form),
                 })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);
-                    if (data.status === 'success') {
-                        showSuccessMessage(data.message);
-                        hideModal(modal);
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 2200);
-                    } else if (data.status === 'error') {
-                        showErrorMessage(data.error);
-                    }
-                })
-                .catch(error => {
-                    console.error('发生错误:', error);
-                });
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data);
+                        if (data.status === 'success') {
+                            showSuccessMessage(data.message);
+                            hideModal(modal);
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 2200);
+                        } else if (data.status === 'error') {
+                            showErrorMessage(data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('发生错误:', error);
+                    });
             }
         });
     });
