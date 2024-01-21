@@ -302,10 +302,18 @@ class ReaderRenewal(View):
         print(record.due_time)
         print(days)
         record.save()
-        return JsonResponse({
-            'status': 'success',
-            'message': '续借成功！',
-        })
+        # return JsonResponse({
+        #     'status': 'success',
+        #     'message': '续借成功！',
+        # })
+        records = models.BorrowRecord.objects.filter(reader_id=record.reader_id.id).all()
+        active_records = records.filter(return_time__isnull=True)
+        history_records = records.filter(return_time__isnull=False)
+        context = {
+            'active_records': active_records,
+            'history_records': history_records,
+        }
+        return render(request, 'reader/borrow_list.html',context)
 
 ##################################################################################
 # Librarian

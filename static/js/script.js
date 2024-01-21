@@ -247,40 +247,40 @@ function payFine() {
     });
 }
 
-function renewalBook() {
-    const renewalBtns = document.querySelectorAll('.renewal-btn');
-    if (renewalBtns === null) {
-        return;
-    }
+// function renewalBook() {
+//     const renewalBtns = document.querySelectorAll('.renewal-btn');
+//     if (renewalBtns === null) {
+//         return;
+//     }
 
-    renewalBtns.forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            // const borrowId = btn.getAttribute('borrow-id');
-            const iId = btn.getAttribute('i-id');
-            const form = document.getElementById('renewal-form'+iId);
-            form.addEventListener('submit', function (event) { event.preventDefault(); });
+//     renewalBtns.forEach(function (btn) {
+//         btn.addEventListener('click', function () {
+//             // const borrowId = btn.getAttribute('borrow-id');
+//             const iId = btn.getAttribute('i-id');
+//             const form = document.getElementById('renewal-form'+iId);
+//             form.addEventListener('submit', function (event) { event.preventDefault(); });
 
-            fetch('/reader/renewal', {
-                method: 'POST',
-                body: new FormData(form),
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log(data);
-                    if (data.status === 'success') {
-                        showSuccessMessage(data.message);
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 2200);
-                    } 
-                })
-                .catch(error => {
-                    console.error('发生错误:', error);
-                });
-        });
-    })
+//             fetch('/reader/renewal', {
+//                 method: 'POST',
+//                 body: new FormData(form),
+//             })
+//                 .then(response => response.json())
+//                 .then(data => {
+//                     console.log(data);
+//                     if (data.status === 'success') {
+//                         showSuccessMessage(data.message);
+//                         setTimeout(() => {
+//                             window.location.reload();
+//                         }, 2200);
+//                     } 
+//                 })
+//                 .catch(error => {
+//                     console.error('发生错误:', error);
+//                 });
+//         });
+//     })
 
-}
+// }
 
 function editBook() {
     const openModalBtn = document.getElementById('open-edit-book-modal-btn');
