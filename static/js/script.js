@@ -47,14 +47,13 @@ document.addEventListener("DOMContentLoaded", function () {
     addCopy(); // 添加书册
 
     borrowBook(); // 借书
-    renewalBook(); // 续借
+    // renewalBook(); // 续借
     returnBook(); // 还书
     takeReservedBook(); // 领取预约书籍
 
     reserveBook(); // 预约
     cancelReservation(); // 取消预约
     payFine(); // 缴纳罚金 
-    //219-285
 });
 
 function login() {
