@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% endblock %}
+
+{% block content %}
+<div class="box centered-box register-box-width">
+    <a class="return-arrow" href="{% url 'login' user_type %}">&lt;</a>
+    <div class="h-centered-section">
+        <div class="box-title">
+            {% if user_type == 'reader' %}
+                读者注册
+            {% elif user_type == 'librarian' %}
+                图书管理员注册
+            {% endif %}
+        </div>
+
+        <form id="register-form">
+            {% csrf_token %}
+            <div class="box-input-group">
+                <input name="username" placeholder="用户名" required>
+                <input type="password" name="password" placeholder="密码" required>
+                <input type="password" name="password_confirm" placeholder="确认密码" required>
+                <input name="email" placeholder="邮箱" required>
+                <input name="phone" placeholder="手机号" required>
+            </div>
+            <button id="register-btn" class="login-register-button-size" type="submit" user-type="{{ user_type }}">注册</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

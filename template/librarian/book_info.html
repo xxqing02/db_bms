@@ -1,0 +1,154 @@
+{% extends "librarian/with_nav.html" %}
+
+{% block main_content %}
+    <div class="main-section">
+        <a class="return-arrow" href="{% url 'librarian_book_list' %}">&lt;</a>
+
+        <div class="book-info-container">
+            <div class="book-info-title">{{ book.title }}</div>
+            <div class="book-info-text">作者：{{ book.author }}</div>
+            <div class="book-info-text">出版社：{{ book.publisher }}</div>
+            <div class="book-info-text">ISBN：{{ book.isbn }}</div>
+            <div class="book-info-text">出版日期：{{ book.date }}</div>
+            <div class="book-info-text">册数：{{ book.number }}</div>
+            <div class="book-info-btn-container">
+                <button id="open-edit-book-modal-btn" class="button-default">编辑信息</button>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <tr>
+                    <th>书册编号</th>
+                    <th>位置</th>
+                    <th>借阅状态</th>
+                    <th>经办人</th>
+                    <th>操作</th>
+                </tr>
+                {% for copy in copies %}
+                    <tr>
+                        <td>{{ copy.copyNO }}</td>
+                        <td>{{ copy.get_position_display }}</td>
+                        <td>{{ copy.get_state_display }}</td>
+                        <td>{{ copy.operator.username }}</td>
+                        <td>
+                            {% if copy.get_state_display == '未借出' %}
+                                <a class="open-borrow-modal-btn" copy-id="{{ copy.id }}">借阅</a>
+                            {% endif %}
+                            {% if copy.get_state_display != '已借出' %}
+                                <a class="open-edit-copy-modal-btn" copy-id="{{ copy.id }}"
+                                    position="{{ copy.position }}">编辑</a>
+                                <a class="open-delete-copy-modal-btn" copy-id="{{ copy.id }}">删除</a>
+                            {% else %}
+                                不可操作
+                            {% endif %}
+                        </td>
+                    </tr>
+
+                    {# 借阅书册模态框 #}
+                    <div id="borrow-modal{{ copy.id }}" class="centered-modal add-book-modal-width" style="display: none;">
+                        <p>借阅书籍</p>
+                        <form id="borrow-form{{ copy.id }}">
+                            {% csrf_token %}
+                            <input type="hidden" name="book-id" value="{{ book.id }}">
+                            <input type="hidden" name="copy-id" value="{{ copy.id }}">
+
+                            <label>用户名：</label>
+                            <input type="text" name="reader" required>
+
+                            <button id="confirm-borrow-btn{{ copy.id }}">确定</button>
+                            <button id="cancel-borrow-btn{{ copy.id }}">取消</button>
+                        </form>
+                    </div>
+
+                    {# 编辑书册模态框 #}
+                    <div id="edit-copy-modal{{ copy.id }}" class="centered-modal add-book-modal-width" style="display: none;">
+                        <p>编辑书册信息</p>
+                        <form id="edit-copy-form{{ copy.id }}">
+                            {% csrf_token %}
+                            <input type="hidden" name="copy-id" value="{{ copy.id }}">
+
+                            <label>书册编号：</label>
+                            <input type="text" name="copy-no" value="{{ copy.copyNO }}" required>
+
+                            <label>位置：</label>
+                            <select id="edit-position{{ copy.id }}" name="position">
+                                <option value="1">图书流通室</option>
+                                <option value="2">图书阅览室</option>
+                            </select>
+
+                            <button id="confirm-edit-copy-btn{{ copy.id }}">确定</button>
+                            <button id="cancel-edit-copy-btn{{ copy.id }}">取消</button>
+                        </form>
+                    </div>
+
+                    {# 删除书册模态框 #}
+                    <div id="delete-copy-modal{{ copy.id }}" class="centered-modal" style="display: none;">
+                        <p>确定要删除吗？</p>
+                        <form id="delete-copy-form{{ copy.id }}">
+                            {% csrf_token %}
+                            <input type="hidden" name="book-id" value="{{ book.id }}">
+                            <input type="hidden" name="copy-id" value="{{ copy.id }}">
+
+                            <button id="confirm-delete-copy-btn{{ copy.id }}">删除</button>
+                            <button id="cancel-delete-copy-btn{{ copy.id }}">取消</button>
+                        </form>
+                    </div>
+                {% endfor %}
+                <tr>
+                    <td colspan="8" class="centered">
+                        <a id="open-add-copy-modal-btn">+ 添加书册</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    {# 编辑书目模态框 #}
+    <div id="edit-book-modal" class="centered-modal add-book-modal-width" style="display: none;">
+        <p>编辑书目信息</p>
+        <form id="edit-book-form">
+            {% csrf_token %}
+            <input type="hidden" name="edit-book-id" value="{{ book.id }}">
+
+            <label>书名：</label>
+            <input id="title", type="text" name="title" value="{{ book.title }}" required>
+            
+            <label>作者：</label>
+            <input id="author", type="text" name="author" value="{{ book.author }}" required>
+
+            <label>出版社：</label>
+            <input id="publisher", type="text" name="publisher" value="{{ book.publisher }}" required>
+
+            <label>ISBN：</label>
+            <input id="isbn", type="text" name="isbn" value="{{ book.isbn }}" required>
+
+            <label>出版年月：</label>
+            <input id="date", type="text" name="date" value="{{ book.date }}" required>
+
+            <button id="confirm-edit-book-btn">保存</button>
+            <button id="cancel-edit-book-btn">取消</button>
+        </form>
+    </div>
+
+    {# 添加书册模态框 #}
+    <div id="add-copy-modal" class="centered-modal add-book-modal-width" style="display: none;">
+        <p>添加书册</p>
+        <form id="add-copy-form">
+            {% csrf_token %}
+            <input type="hidden" name="book-id" value="{{ book.id }}">
+
+            <label>书册编号：</label>
+            <input type="text" name="copy-no" required>
+
+            <label>位置：</label>
+            <select name="position">
+                <option value="1">图书流通室</option>
+                <option value="2">图书阅览室</option>
+            </select>
+
+            <button id="confirm-add-copy-btn">确定</button>
+            <button id="cancel-add-copy-btn">取消</button>
+        </form>
+    </div>
+{% endblock %}
